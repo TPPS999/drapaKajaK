@@ -1,281 +1,376 @@
-# 📊 Kayak Data Extractor - Kompletny przewodnik
+# 🛫 Kayak Flight Scraper
 
-Simple Kayak Data Extractor to narzędzie do automatycznego wyciągania najlepszych ofert z plików tekstowych wygenerowanych przez scrapery i organizowania ich w przejrzystym Excel.
+Inteligentny scraper lotów z Kayak.pl umożliwiający monitorowanie cen i automatyczne wyszukiwanie najlepszych ofert.
 
-## 🎯 Co robi Data Extractor?
+## 📋 Spis treści
+- [Funkcje](#-funkcje)
+- [Wymagania](#-wymagania)
+- [Instalacja](#-instalacja)
+- [Konfiguracja](#-konfiguracja)
+- [Użytkowanie](#-użytkowanie)
+- [Struktura plików](#-struktura-plików)
+- [Rozwiązywanie problemów](#-rozwiązywanie-problemów)
 
-### Automatyczne wyciąganie danych:
-- **Pierwsza oferta** - najtańsza z każdego pliku .txt
-- **Szczegółowe parsowanie** - czasy lotów, przesiadki, lotniska
-- **Inteligentna analiza** - rozpoznaje wzorce Kayak
-- **Excel export** - przejrzysta tabela z sortowaniem
+## ✨ Funkcje
 
-### Wyciągane informacje:
-- 💰 **Ceny** - łączna i za osobę
-- ✈️ **Linie lotnicze** - tam i powrót
-- 🛫 **Lotniska** - wylotu i docelowe
-- 🕐 **Czasy** - wylotu, przylotu, całkowity czas podróży
-- 🔄 **Przesiadki** - liczba, lotniska, czasy oczekiwania
-- ⏱️ **Rzeczywisty czas lotu** - bez przesiadek
+- **Dwa tryby pracy:**
+  - **Extended Mode** - wszystkie kombinacje dat w zadanym zakresie
+  - **Excel Mode** - konkretne loty z pliku Excel
+- **Rolling Mode** - ciągły monitoring w kółko
+- **Inteligentne opóźnienia** - losowe czasy między zapytaniami
+- **Obsługa wielu linii lotniczych** - LOT, Turkish, Emirates, Qatar i więcej
+- **Bezpieczny scraping** - headless Chrome z losowymi User-Agent
+- **Szczegółowe logowanie** - pełna kontrola nad procesem
+- **Export wyników** - pliki tekstowe + JSON summary
+- **🆕 Data Extractor** - automatyczne wyciąganie najlepszych ofert z plików tekstowych do Excel
 
-## 🚀 Podstawowe użycie
+## 🔧 Wymagania
 
-### 1. Sprawdź dostępne sesje
+### Software:
+- Python 3.8+
+- Chrome/Chromium browser
+- ChromeDriver (automatycznie zarządzany)
+
+### Wymagane biblioteki:
+```bash
+selenium
+pandas
+openpyxl
+```
+
+## 🚀 Instalacja
+
+1. **Klonowanie repozytorium:**
+```bash
+git clone [url-repozytorium]
+cd kayak-flight-scraper
+```
+
+2. **Instalacja zależności:**
+```bash
+pip install selenium pandas openpyxl
+```
+
+3. **Automatyczna instalacja ChromeDriver:**
+```bash
+pip install webdriver-manager
+```
+
+Lub pobierz ChromeDriver ręcznie z [chromdriver.chromium.org](https://chromedriver.chromium.org) i dodaj do PATH.
+
+## ⚙️ Konfiguracja
+
+### Extended Mode (wszystkie kombinacje)
+
+Edytuj plik `config_extended.json`:
+
+```json
+{
+  "scraping_config": {
+    "origin": "WAW",              // Lotnisko wylotu (kod IATA)
+    "destination": "ICN",         // Lotnisko docelowe (kod IATA) 
+    "earliest_departure": "2025-10-05",  // Najwcześniejszy wylot
+    "latest_return": "2025-11-15",       // Najpóźniejszy powrót
+    "min_days": 19,               // Minimalna długość pobytu
+    "max_days": 24,               // Maksymalna długość pobytu
+    "passengers": 2,              // Liczba pasażerów (1-4)
+    "selected_airlines": [        // Wybrane linie lotnicze
+      "LOT", "Turkish", "Emirates", "Qatar", "China_Air"
+    ],
+    "delay_between_requests": [25, 45],   // Opóźnienie [min, max] sekund
+    "rolling_mode": false,        // Tryb ciągły
+    "rolling_break_minutes": [30, 60]    // Przerwa między rundami
+  }
+}
+```
+
+### Excel Mode (konkretne loty)
+
+Utwórz plik `flights_list.xlsx` z kolumnami:
+
+| Lotnisko wylotu | Lotnisko docelowe | Filtr linii | Data wylotu | Data powrotu |
+|-----------------|-------------------|-------------|-------------|--------------|
+| WAW             | ICN               | Turkish     | 2025-10-22  | 2025-11-10   |
+| WAW             | ICN               | Qatar       | 2025-10-21  | 2025-11-12   |
+| WAW             | ICN               | Emirates    | 2025-10-05  | 2025-10-24   |
+
+Następnie edytuj `excel_config.json`:
+
+```json
+{
+  "scraping_config": {
+    "passengers": 2,
+    "delay_between_requests": [20, 35],
+    "randomize_order": true,
+    "rolling_break_minutes": [30, 60]
+  }
+}
+```
+
+### Dostępne linie lotnicze
+
+Obsługiwane filtry (nie zmieniaj bez znajomości URL encoding):
+
+- **LOT** - LOT Polish Airlines
+- **Turkish** - Turkish Airlines + Multi
+- **Emirates** - Emirates
+- **Qatar** - Qatar Airways
+- **China_Air** - Air China
+- **Lufthansa** - Lufthansa + Multi
+- **KLM** - KLM + Multi
+- **AirFrance** - Air France + Multi
+- **Swiss** - Swiss
+- **Austrian** - Austrian Airlines
+- **Finnair** - Finnair
+- **SAS** - SAS
+- **Korean** - Korean Air
+- **Asiana** - Asiana Airlines
+- **Etihad** - Etihad Airways
+
+## 🎯 Użytkowanie
+
+### Extended Mode (wszystkie kombinacje)
 
 ```bash
-python simple_kayak_extractor.py
+python scrap_only_extended.py
 ```
 
-**Wynik:**
-```
-🚀 SIMPLE KAYAK DATA EXTRACTOR
-========================================
-Użycie:
-  python simple_kayak_extractor.py <folder_sesji>
+Ten tryb sprawdzi wszystkie kombinacje dat w zadanym zakresie dla wybranych linii lotniczych.
 
-📁 Dostępne sesje:
-  txt_session_20250623_143022 (45 plików)
-  txt_session_20250623_120500 (23 plików)
-  excel_session_20250623_101500 (12 plików)
+**Przykład:** Dla zakresu 5 dni, 3 linii i długości pobytu 2-4 dni = ~45 zapytań
+
+### Excel Mode (konkretne loty)
+
+```bash
+python kayak_excel_scraper.py
 ```
 
-### 2. Wyciągnij dane z sesji
+Ten tryb sprawdzi tylko konkretne loty z pliku Excel.
+
+**Przykład:** 10 wierszy w Excel = 10 zapytań
+
+### Rolling Mode (ciągły monitoring)
+
+W konfiguracji ustaw `"rolling_mode": true` i uruchom dowolny skrypt.
+
+Program będzie działał w kółko z przerwami między rundami. Zatrzymanie: **Ctrl+C**
+
+### 🆕 Data Extractor (wyciągnij oferty do Excel)
+
+Po wykonaniu scrapingu użyj extractora do wyciągnięcia najlepszych ofert:
 
 ```bash
 python simple_kayak_extractor.py kayak_text_data/txt_session_20250623_143022
 ```
 
-**Proces:**
-```
-🔄 Przetwarzanie sesji: kayak_text_data/txt_session_20250623_143022
-🔍 Znaleziono 45 plików .txt
+Extractor automatycznie:
+- Znajdzie pierwszą (najtańszą) ofertę w każdym pliku .txt
+- Wyciągnie szczegółowe informacje o lotach (czasy, przesiadki, lotniska)
+- Zapisze wszystko w przejrzystym pliku Excel
+- Pokaże statystyki cen i ranking ofert
 
-📄 Przetwarzanie: WAW-ICN_Turkish_2025-10-22_2025-11-10_xxx.txt
-  📋 Z nazwy pliku: Turkish | 2025-10-22 → 2025-11-10
-  🎯 Znaleziono ceny używając Pattern 1
-  💰 Ceny: 3609.0 PLN/os → 7218.0 PLN łącznie (Pattern 1)
-  📄 Parsowanie oferty (1247 znaków)
-  ✈️ Linia z nazwy pliku: Turkish
-  🛫 Trasa: WAW → ICN
-  🕐 Lot tam: 08:45 → 23:45+1
-  🕐 Lot powrót: 18:30 → 07:00+1
-  ⏱️ Czasy podróży: tam 32 h 00 min, powrót 19 h 30 min
-  🔄 Przesiadki TAM: 2
-    1. DXB (3 h 10 min)
-    2. MNL (9 h 15 min)
-  🔄 Przesiadki POWRÓT: 1
-    1. AUH (3 h 25 min)
-  ✈️ Rzeczywiste czasy lotów: tam 19 h 35 min, powrót 15 h 05 min
-  ✅ 7,218 PLN - Turkish
+## 📁 Struktura plików
 
-📄 Przetwarzanie: WAW-ICN_Qatar_2025-10-21_2025-11-12_xxx.txt
-  ...
-
-📊 Eksport zakończony: kayak_offers_20250623_145000.xlsx
-📈 Wyeksportowano 42 ofert
-💰 Najniższa cena: 6,240 PLN
-💰 Najwyższa cena: 12,450 PLN
-💰 Średnia cena: 8,127 PLN
-✅ Gotowe! Sprawdź plik: kayak_offers_20250623_145000.xlsx
-```
-
-## 📊 Struktura pliku Excel
-
-### Podstawowe kolumny:
-| Kolumna | Przykład | Opis |
-|---------|----------|------|
-| Plik | `WAW-ICN_Turkish_2025-10-22...` | Oryginalny plik źródłowy |
-| Filtr linii | `Turkish` | Linia z konfiguracji |
-| Data wylotu | `2025-10-22` | Data wylotu |
-| Data powrotu | `2025-11-10` | Data powrotu |
-| Cena łączna (PLN) | `7218` | Cena dla wszystkich pasażerów |
-| Cena za osobę (PLN) | `3609` | Cena za jedną osobę |
-
-### Szczegóły lotów:
-| Kolumna | Przykład | Opis |
-|---------|----------|------|
-| Linie lotnicze tam | `flydubai, Philippine Airlines` | Przewoźnicy na trasie tam |
-| Linie lotnicze powrót | `Etihad Airways` | Przewoźnicy na trasie powrót |
-| Lotnisko wylotu | `WAW` | Kod IATA wylotu |
-| Lotnisko docelowe | `ICN` | Kod IATA miejsca docelowego |
-
-### Czasy lotów:
-| Kolumna | Przykład | Opis |
-|---------|----------|------|
-| Wylot tam | `08:45` | Godzina wylotu |
-| Przylot tam | `23:45+1` | Godzina przylotu (+1 = następny dzień) |
-| Wylot powrót | `18:30` | Godzina wylotu powrotnego |
-| Przylot powrót | `07:00+1` | Godzina przylotu powrotnego |
-
-### Analiza czasów:
-| Kolumna | Przykład | Opis |
-|---------|----------|------|
-| Czas podróży tam (total) | `32 h 00 min` | Całkowity czas z przesiadkami |
-| Czas podróży powrót (total) | `19 h 30 min` | Całkowity czas z przesiadkami |
-| Czas lotu tam (bez przesiadek) | `19 h 35 min` | Rzeczywisty czas w powietrzu |
-| Czas lotu powrót (bez przesiadek) | `15 h 05 min` | Rzeczywisty czas w powietrzu |
-
-### Przesiadki (max 3 na kierunek):
-| Kolumna | Przykład | Opis |
-|---------|----------|------|
-| Przesiadki tam | `2` | Liczba przesiadek |
-| Przesiadka 1 tam - lotnisko | `DXB` | Kod lotniska przesiadki |
-| Przesiadka 1 tam - czas | `3 h 10 min` | Czas oczekiwania |
-| Przesiadka 2 tam - lotnisko | `MNL` | Drugie lotnisko przesiadki |
-| Przesiadka 2 tam - czas | `9 h 15 min` | Drugi czas oczekiwania |
-
-## 🎯 Przykłady użycia
-
-### Porównanie linii lotniczych
-```bash
-# Po scrapingu z różnymi liniami
-python simple_kayak_extractor.py kayak_text_data/txt_session_20250623_143022
-```
-
-**Excel rezultat:**
-- Sortowanie po cenie: Turkish 7,218 PLN → Qatar 8,450 PLN → Emirates 9,120 PLN
-- Filtrowanie po przesiadkach: Pokaż tylko loty z max 1 przesiadką
-- Analiza czasów: Znajdź najkrótsze czasy podróży
-
-### Analiza konkretnych dat
-```bash
-# Po Excel Mode z wybranymi datami
-python simple_kayak_extractor.py kayak_excel_data/excel_session_20250623_101500
-```
-
-**Excel rezultat:**
-- Porównanie cen dla różnych dat wylotu
-- Analiza wpływu długości pobytu na cenę
-- Optymalizacja terminów
-
-### Rolling mode - trend cen
-```bash
-# Po długotrwałym monitoringu
-python simple_kayak_extractor.py rolling_mode
-```
-
-**Excel rezultat:**
-- Najnowsze ceny z każdej rundy
-- Tracking zmian cen w czasie
-- Identyfikacja najlepszych momentów na zakup
-
-## 🔧 Zaawansowane funkcje
-
-### Inteligentne parsowanie cen
-
-Extractor rozpoznaje różne formaty cen Kayak:
-```
-✅ "3 609 zł / osoba 7 218 zł łącznie"
-✅ "3609 zł/osoba, 7218 zł łącznie"  
-✅ "3 609 PLN per person, 7 218 PLN total"
-```
-
-### Automatyczne obliczanie czasów lotu
+Po uruchomieniu zostanie utworzona następująca struktura:
 
 ```
-Czas podróży total: 32 h 00 min
-- Przesiadka DXB: 3 h 10 min  
-- Przesiadka MNL: 9 h 15 min
-= Rzeczywisty lot: 19 h 35 min ✈️
+kayak_text_data/                    # Extended mode
+├── txt_session_20250623_143022/    # Folder sesji
+│   ├── WAW-ICN_Turkish_2025-10-22_2025-11-10_xxx.txt
+│   ├── WAW-ICN_Qatar_2025-10-21_2025-11-12_xxx.txt
+│   └── session_summary.json       # Podsumowanie sesji
+│
+kayak_excel_data/                   # Excel mode
+├── excel_session_20250623_143500/
+│   ├── WAW-ICN_Turkish_2025-10-22_2025-11-10_xxx.txt
+│   └── session_summary.json
+│
+└── rolling_mode/                   # Rolling mode (wszystko w jednym folderze)
+    ├── R001_WAW-ICN_Turkish_xxx.txt   # R001 = runda 1
+    ├── R002_WAW-ICN_Qatar_xxx.txt     # R002 = runda 2
+    └── round_001_summary.json
+
+# Pliki wygenerowane przez Data Extractor:
+kayak_offers_20250623_145000.xlsx  # Wyciągnięte oferty w Excel
 ```
 
-### Rozpoznawanie struktur oferów
+### Format pliku wyników
 
-Extractor automatycznie dzieli tekst na sekcje:
-- **Lot tam:** pierwszy blok z czasami i przesiadkami
-- **Lot powrót:** drugi blok z czasami i przesiadkami
-- **Ceny:** na końcu oferty
+Każdy plik `.txt` zawiera:
+
+```
+URL: https://www.kayak.pl/flights/WAW-ICN/2025-10-22/2025-11-10/2adults?sort=price_a&fs=airlines%3DTK%3Bbfc%3D1
+Title: Flights from Warsaw to Seoul | Kayak
+Timestamp: 20250623_143022_123
+Round: Single
+Route: WAW → ICN
+Request: Turkish Airlines + Multi | 2025-10-22 → 2025-11-10 | 2 pax
+Airline Filter: fs=airlines%3DTK%3Bbfc%3D1
+Duration: 19 days
+================================================================================
+
+[CAŁY TEKST ZE STRONY KAYAK]
+```
+
+### 🆕 Format pliku Excel (Data Extractor)
+
+Plik Excel zawiera szczegółowe kolumny:
+
+| Kolumna | Opis |
+|---------|------|
+| **Podstawowe** |
+| Plik | Nazwa oryginalnego pliku .txt |
+| Filtr linii | Linia lotnicza z konfiguracji |
+| Data wylotu/powrotu | Daty podróży |
+| Cena łączna/za osobę | Ceny w PLN |
+| **Loty** |
+| Linie lotnicze tam/powrót | Nazwy przewoźników |
+| Lotnisko wylotu/docelowe | Kody IATA (WAW/ICN) |
+| Wylot/Przylot tam/powrót | Godziny lotów |
+| **Czasy** |
+| Czas podróży (total) | Całkowity czas z przesiadkami |
+| Czas lotu (bez przesiadek) | Rzeczywisty czas w powietrzu |
+| **Przesiadki (tam i powrót)** |
+| Przesiadki | Liczba przesiadek (0-3) |
+| Przesiadka 1/2/3 lotnisko | Kody lotnisk przesiadek |
+| Przesiadka 1/2/3 czas | Czas oczekiwania na przesiadkę |
 
 ## 🛠️ Rozwiązywanie problemów
 
-### Problem: "Nie znaleziono oferty"
+### Częste problemy
 
-**Przyczyny:**
-- Plik .txt nie zawiera cen w rozpoznawalnym formacie
-- Kayak zwrócił błąd zamiast ofert
-- Niezgodność formatów
+1. **ChromeDriver Error**
+   ```bash
+   pip install webdriver-manager
+   ```
 
-**Rozwiązanie:**
+2. **Brak pliku konfiguracji**
+   - Program automatycznie utworzy przykładowy config
+   - Edytuj i uruchom ponownie
+
+3. **Błąd "Brak lotów do sprawdzenia"**
+   - Sprawdź format dat w Excel (YYYY-MM-DD)
+   - Upewnij się, że kody lotnisk mają 3 znaki (WAW, ICN)
+   - Sprawdź czy nazwy linii są poprawne
+
+4. **Timeout errors**
+   - Zwiększ opóźnienia w konfiguracji
+   - Sprawdź połączenie internetowe
+
+### Parametry dostrajania
+
+**Dla wolniejszego internetu:**
+```json
+"delay_between_requests": [40, 60]
+```
+
+**Dla szybszego scrapowania (ryzykowne):**
+```json
+"delay_between_requests": [15, 25]
+```
+
+**Rolling mode - częstsze rundy:**
+```json
+"rolling_break_minutes": [15, 30]
+```
+
+## 📊 Statystyki i monitorowanie
+
+Program wyświetla na bieżąco:
+
+- **Progress** - ile zapytań wykonano/pozostało
+- **Skuteczność** - procent udanych zapytań
+- **Zebranych znaków** - ilość danych
+- **Czas trwania** - w rolling mode
+
+### Przykładowe podsumowanie:
+
+```
+🏁 ============================================================
+🎉 SESJA ZAKOŃCZONA!
+📊 WYNIKI:
+   ✅ Sukces: 42
+   ❌ Błędy: 3
+   📈 Skuteczność: 93.3%
+   📝 Zebranych znaków: 2,847,294
+🛫 Trasa: WAW→ICN
+📁 Dane zapisane w: kayak_text_data/txt_session_20250623_143022
+============================================================
+```
+
+## 🔄 Kompletny workflow
+
+### Standardowa procedura (Extended Mode):
+
 ```bash
-# Sprawdź kilka plików ręcznie
-head -n 50 kayak_text_data/session/plik.txt
-# Szukaj wzorców: "zł", "PLN", "osoba", "łącznie"
+# 1. Konfiguracja
+# Edytuj config_extended.json (trasa, daty, linie)
+
+# 2. Scraping
+python scrap_only_extended.py
+# Wynik: kayak_text_data/txt_session_20250623_143022/ z plikami .txt
+
+# 3. Analiza danych
+python simple_kayak_extractor.py kayak_text_data/txt_session_20250623_143022
+# Wynik: kayak_offers_20250623_145000.xlsx z przejrzystą tabelą
+
+# 4. Analiza w Excel
+# Otwórz Excel, sortuj po cenie, filtruj po liniach, etc.
 ```
 
-### Problem: "Błędne ceny"
+### Procedura dla konkretnych lotów (Excel Mode):
 
-**Debug:**
 ```bash
-# Uruchom z pojedynczym plikiem
-python simple_kayak_extractor.py single_file_test/
+# 1. Przygotuj listę lotów
+# Edytuj flights_list.xlsx (konkretne daty i trasy)
+
+# 2. Scraping
+python kayak_excel_scraper.py
+# Wynik: kayak_excel_data/excel_session_20250623_143500/ z plikami .txt
+
+# 3. Analiza danych
+python simple_kayak_extractor.py kayak_excel_data/excel_session_20250623_143500
+# Wynik: kayak_offers_20250623_145000.xlsx
 ```
 
-Extractor pokazuje proces parsowania:
-```
-🎯 Znaleziono ceny używając Pattern 1
-💰 Ceny: 3609.0 PLN/os → 7218.0 PLN łącznie (Pattern 1)
-```
+### Rolling Mode (ciągły monitoring):
 
-### Problem: "Brak przesiadek"
-
-**Przyczyny:**
-- Loty direct (bez przesiadek) ✅ 
-- Niewykryte wzorce przesiadek
-- Błędy w tekście Kayak
-
-**Weryfikacja:**
 ```bash
-# Sprawdź oryginalny tekst
-grep -A 10 -B 10 "Przesiadka" kayak_text_data/session/plik.txt
+# 1. Konfiguracja
+# W config_extended.json ustaw "rolling_mode": true
+
+# 2. Długoterminowy monitoring
+python scrap_only_extended.py
+# Program działa w kółko, zatrzymanie: Ctrl+C
+# Wszystkie pliki w rolling_mode/
+
+# 3. Okresowa analiza
+python simple_kayak_extractor.py rolling_mode
+# Excel z najnowszymi danymi
 ```
 
-### Problem: "Błędne czasy lotów"
+- **Headless Chrome** - niewidoczne działanie
+- **Losowe User-Agent** - imitacja prawdziwych użytkowników  
+- **Inteligentne opóźnienia** - unikanie wykrycia
+- **Rotacja żądań** - losowa kolejność
+- **Graceful handling** - obsługa błędów bez crashy
 
-**Najczęstsze przyczyny:**
-- Strefy czasowe (+1, +2) - to normalne ✅
-- Loty przez datę (departure 23:45, arrival 07:00+1) ✅
-- Niepoprawne parsowanie formatów czasu
+## 📝 Notatki
 
-**Sprawdzenie:**
-```bash
-# Znajdź wszystkie wzorce czasów w pliku
-grep -E "\d{2}:\d{2}" kayak_text_data/session/plik.txt
-```
+- **Szacowany czas:** ~30-45s na zapytanie (z opóźnieniami)
+- **Zalecane użycie:** maksymalnie 50-100 zapytań na sesję
+- **Rolling mode:** idealny do długoterminowego monitorowania
+- **Excel mode:** najlepszy do sprawdzania konkretnych dat
 
-## 📈 Analiza wyników w Excel
+## 🚨 Ostrzeżenia
 
-### Sortowanie i filtrowanie
+- Nie uruchamiaj zbyt wielu sesji równolegle
+- Używaj rozsądnych opóźnień (min. 20s)
+- W razie problemów zwiększ czasy oczekiwania
+- Rolling mode może działać całymi dniami - monitoruj zużycie zasobów
 
-**Po otwarciu Excel:**
+---
 
-1. **Sortuj po cenie** - znajdź najtańsze oferty
-2. **Filtruj po linii** - porównaj konkretnych przewoźników  
-3. **Filtruj po przesiadkach** - wybierz loty direct lub z max 1 przesiadką
-4. **Filtruj po czasie** - eliminuj za długie podróże
-
-### Przydatne formuły Excel
-
-**Oblicz oszczędności vs średnia:**
-```excel
-=ŚREDNIA(E:E)-E2
-```
-
-**Ranking czasów podróży:**
-```excel
-=RANK(P2,P:P,1)
-```
-
-**Stosunek cena/czas:**
-```excel
-=E2/CZAS(P2)
-```
-
-### Wykresy i dashboardy
-
-**Scatter plot: Cena vs Czas podróży**
-- X: Czas podróży (total)
-- Y: Cena łączna
-- Znajdź optimum: niska cena + krótki czas
-
-**Bar chart: Średnie ceny według linii**
-- Porównaj średnie ceny różnych przewo
+**Autor:** [Twoje dane]  
+**Wersja:** 2.0  
+**Data:** Czerwiec 2025
