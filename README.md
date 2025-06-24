@@ -60,23 +60,19 @@ plyer>=2.1.0  # powiadomienia
 
 ## 🚀 Szybki start
 
-### 1. Instalacja
+### 1. Automatyczna instalacja (zalecane)
 ```bash
 # Klonowanie projektu
 git clone [url-repo]
 cd kayak-flight-scraper
 
-# Instalacja zależności
-pip install -r requirements.txt
-# LUB
-pip install selenium webdriver-manager pandas openpyxl requests beautifulsoup4 plyer
+# Automatyczny setup - robi wszystko!
+setup_and_run.bat     # Windows
+./setup_and_run.sh    # Linux/macOS
 ```
 
-### 2. Test systemu
-```bash
-# Uruchom GUI (automatycznie sprawdzi komponenty)
-python FlightTool_Complete.py
-```
+### 2. Ręczna instalacja (jeśli potrzebne)
+Zobacz [MANUAL_INSTALL.md](MANUAL_INSTALL.md) lub [requirements.txt](requirements.txt)
 
 ### 3. Pierwszy scraping (Extended Mode)
 ```bash
