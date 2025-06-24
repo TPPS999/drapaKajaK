@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Simple Kayak Data Extractor
-Wyciąga pierwszą (najtańszą) ofertę z każdego pliku .txt i zapisuje do Excel
+Wyciaga pierwsza (najtansza) oferte z kazdego pliku .txt i zapisuje do Excel
 """
 
 import os
@@ -12,6 +12,13 @@ from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass
 from typing import Optional, List
+import sys
+
+# Fix dla Windows - ustaw kodowanie UTF-8 dla stdout
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
 
 @dataclass
 class SimpleOffer:
@@ -31,17 +38,17 @@ class SimpleOffer:
     departure_airport: str  # Lotnisko wylotu (WAW)
     destination_airport: str  # Lotnisko docelowe (ICN)
     
-    # Czasy lotów
+    # Czasy lotow
     departure_time: str
     arrival_time: str
     return_departure_time: str
     return_arrival_time: str
     
-    # Czasy podróży i lotów
-    total_travel_time_outbound: str  # Całkowity czas podróży tam
-    total_travel_time_return: str    # Całkowity czas podróży powrót
+    # Czasy podrozy i lotow
+    total_travel_time_outbound: str  # Calkowity czas podrozy tam
+    total_travel_time_return: str    # Calkowity czas podrozy powrot
     actual_flight_time_outbound: str # Czas lotu bez przesiadek tam
-    actual_flight_time_return: str   # Czas lotu bez przesiadek powrót
+    actual_flight_time_return: str   # Czas lotu bez przesiadek powrot
     
     # Przesiadki tam (max 3)
     stops_outbound: int
@@ -52,7 +59,7 @@ class SimpleOffer:
     stop3_outbound_airport: str
     stop3_outbound_duration: str
     
-    # Przesiadki powrót (max 3)
+    # Przesiadki powrot (max 3)
     stops_return: int
     stop1_return_airport: str
     stop1_return_duration: str
@@ -66,37 +73,102 @@ class SimpleKayakExtractor:
         pass
     
     def parse_filename(self, filename: str) -> dict:
-        """Parsuje nazwę pliku dla pewnych danych"""
-        # China_Air_2025-10-06_2025-10-27_20250616_192540_948.txt
-        # LOT_2025-10-05_2025-10-25_20250616_194501_123.txt  
-        # Qatar_2025-10-23_2025-11-15_20250616_192648_481.txt
+        """Parsuje nazwe pliku dla pewnych danych - obsługuje standard i rolling mode"""
         
-        pattern = r'([A-Za-z_]+)_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})_(\d{8})_(\d{6})_(\d+)\.txt'
-        match = re.match(pattern, filename)
+        # Standard mode: WAW_ICN_Turkish_2025-10-22_2025-11-10_20250623_143022_123.txt
+        standard_pattern = r'([A-Z]{3})_([A-Z]{3})_([A-Za-z_]+)_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})_(\d{8})_(\d{6})_(\d+)\.txt'
+        
+        # Rolling mode: R001_WAW_ICN_Turkish_2025-10-22_2025-11-10_20250623_143022_123.txt
+        rolling_pattern = r'R\d+_([A-Z]{3})_([A-Z]{3})_([A-Za-z_]+)_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})_(\d{8})_(\d{6})_(\d+)\.txt'
+        
+        # Spróbuj wzorzec rolling mode
+        match = re.match(rolling_pattern, filename)
+        mode = "rolling"
+        
+        if not match:
+            # Spróbuj wzorzec standard mode
+            match = re.match(standard_pattern, filename)
+            mode = "standard"
         
         if match:
-            airline_name = match.group(1).replace('_', ' ')  # China_Air -> China Air
+            if mode == "rolling":
+                # Rolling mode: R001_WAW_ICN_Turkish_...
+                departure_airport = match.group(1)  # WAW
+                destination_airport = match.group(2)  # ICN
+                airline_name = match.group(3).replace('_', ' ')  # Turkish
+                departure_date = match.group(4)  # 2025-10-22
+                return_date = match.group(5)  # 2025-11-10
+                session_date = match.group(6)  # 20250623
+                session_time = match.group(7)  # 143022
+                sequence = match.group(8)  # 123
+            else:
+                # Standard mode: WAW_ICN_Turkish_...
+                departure_airport = match.group(1)  # WAW
+                destination_airport = match.group(2)  # ICN
+                airline_name = match.group(3).replace('_', ' ')  # Turkish
+                departure_date = match.group(4)  # 2025-10-22
+                return_date = match.group(5)  # 2025-11-10
+                session_date = match.group(6)  # 20250623
+                session_time = match.group(7)  # 143022
+                sequence = match.group(8)  # 123
+            
+            print(f"Parsowanie ({mode}): {departure_airport} -> {destination_airport}, {airline_name}")
+            
             return {
                 'airline_filter': airline_name,
-                'departure_date': match.group(2),
-                'return_date': match.group(3),
-                'session_date': match.group(4),
-                'session_time': match.group(5),
-                'sequence': match.group(6)
+                'departure_date': departure_date,
+                'return_date': return_date,
+                'session_date': session_date,
+                'session_time': session_time,
+                'sequence': sequence,
+                'departure_airport': departure_airport,
+                'destination_airport': destination_airport,
+                'mode': mode
             }
         
-        print(f"  ⚠️  Nie rozpoznano formatu nazwy pliku: {filename}")
+        print(f"Nie rozpoznano formatu nazwy pliku: {filename}")
         return {
             'airline_filter': 'UNKNOWN', 
             'departure_date': '', 
             'return_date': '',
             'session_date': '',
             'session_time': '',
-            'sequence': ''
+            'sequence': '',
+            'departure_airport': 'WAW',  # domyślne
+            'destination_airport': 'ICN',  # domyślne
+            'mode': 'unknown'
         }
+
+    def parse_airports(self, text: str, departure_from_filename: str = "", destination_from_filename: str = "") -> tuple:
+        """Wyciaga lotniska wylotu i docelowe - priorytet ma nazwa pliku"""
+        
+        # Jeśli mamy kody z nazwy pliku, użyj ich
+        if departure_from_filename and destination_from_filename:
+            print(f"Lotniska z nazwy pliku: {departure_from_filename} -> {destination_from_filename}")
+            return departure_from_filename, destination_from_filename
+        
+        # Fallback - szukaj w tekście (stara logika)
+        departure_airport = "WAW"  # Domyślnie WAW (Warszawa)
+        destination_airport = "ICN"  # Domyślnie ICN (Inczhon)
+        
+        # Sprawdz kierunek lotu w tekście
+        if "WAW" in text and "ICN" in text:
+            waw_pos = text.find("WAW")
+            icn_pos = text.find("ICN")
+            
+            # Pierwszy wystepujacy to prawdopodobnie wylot
+            if waw_pos < icn_pos:
+                departure_airport = "WAW"
+                destination_airport = "ICN"
+            else:
+                departure_airport = "ICN" 
+                destination_airport = "WAW"
+        
+        print(f"Lotniska z tekstu (fallback): {departure_airport} -> {destination_airport}")
+        return departure_airport, destination_airport
     
     def extract_first_offer_simple(self, content: str) -> Optional[dict]:
-        """Wyciąga pierwszą ofertę z tekstu Kayak"""
+        """Wyciaga pierwsza oferte z tekstu Kayak"""
         try:
             # Poprawione wzorce cen dla formatu z pliku
             price_patterns = [
@@ -112,58 +184,58 @@ class SimpleKayakExtractor:
                 price_match = re.search(pattern, content, re.IGNORECASE | re.DOTALL)
                 if price_match:
                     pattern_used = f"Pattern {i+1}"
-                    print(f"  🎯 Znaleziono ceny używając {pattern_used}")
+                    print(f"Znaleziono ceny uzywajac {pattern_used}")
                     break
             
             if not price_match:
-                print(f"  🔍 DEBUG: Nie znaleziono standardowych wzorców, sprawdzam zawartość...")
+                print(f"DEBUG: Nie znaleziono standardowych wzorcow, sprawdzam zawartosc...")
                 
-                # Znajdź wszystkie wystąpienia z "zł"
-                zl_pattern = r'(\d+(?:\s+\d{3})*)\s*zł'
+                # Znajdz wszystkie wystapienia z "zl"
+                zl_pattern = r'(\d+(?:\s+\d{3})*)\s*zl'
                 zl_matches = list(re.finditer(zl_pattern, content))
                 
                 if zl_matches:
-                    print(f"  💰 Znaleziono {len(zl_matches)} cen w zł:")
-                    for j, match in enumerate(zl_matches[:8]):  # Pokaż pierwsze 8
+                    print(f"Znaleziono {len(zl_matches)} cen w zl:")
+                    for j, match in enumerate(zl_matches[:8]):  # Pokaz pierwsze 8
                         price_value = match.group(1).replace(' ', '')
                         context_start = max(0, match.start() - 30)
                         context_end = min(len(content), match.end() + 30)
                         context = content[context_start:context_end].replace('\n', ' ').replace('\r', ' ')
-                        print(f"    {j+1}. {price_value} zł - ...{context}...")
+                        print(f"    {j+1}. {price_value} zl - ...{context}...")
                     
-                    # Spróbuj znaleźć parę cen (na osobę + łącznie)
+                    # Sprobuj znalezc pare cen (na osobe + lacznie)
                     prices = []
                     for match in zl_matches:
                         price_str = match.group(1).replace(' ', '')
                         try:
                             price_val = int(price_str)
-                            if 1000 <= price_val <= 50000:  # Rozsądny zakres cen
+                            if 1000 <= price_val <= 50000:  # Rozsadny zakres cen
                                 prices.append((price_val, match.start(), match.end()))
                         except:
                             continue
                     
-                    print(f"  🎯 Ceny w rozsądnym zakresie: {[p[0] for p in prices]}")
+                    print(f"Ceny w rozsadnym zakresie: {[p[0] for p in prices]}")
                     
-                    # Jeśli mamy dokładnie 2 ceny, sprawdź czy jedna to połowa drugiej
+                    # Jesli mamy dokladnie 2 ceny, sprawdz czy jedna to polowa drugiej
                     if len(prices) >= 2:
                         for i in range(len(prices)-1):
                             price1, pos1, end1 = prices[i]
                             price2, pos2, end2 = prices[i+1]
                             
-                            # Sprawdź czy jedna cena to około połowa drugiej (na osobę vs łącznie)
-                            if abs(price2 - price1 * 2) < 100:  # Tolerancja 100 zł
-                                print(f"  ✅ Znaleziono parę cen: {price1} i {price2} (2 osoby)")
+                            # Sprawdz czy jedna cena to okolo polowa drugiej (na osobe vs lacznie)
+                            if abs(price2 - price1 * 2) < 100:  # Tolerancja 100 zl
+                                print(f"Znaleziono pare cen: {price1} i {price2} (2 osoby)")
                                 per_person = float(price1)
                                 total = float(price2)
                                 
-                                # Znajdź tekst oferty
-                                offer_start = max(0, pos1 - 1000)  # 1000 znaków przed pierwszą ceną
+                                # Znajdz tekst oferty
+                                offer_start = max(0, pos1 - 1000)  # 1000 znakow przed pierwsza cena
                                 offer_end = end2
                                 offer_text = content[offer_start:offer_end]
                                 
                                 return offer_text, per_person, total
                 
-                print(f"  ❌ Nie znaleziono odpowiednich cen")
+                print(f"Nie znaleziono odpowiednich cen")
                 return None
             
             # Standardowe parsowanie gdy znaleziono wzorzec
@@ -173,9 +245,9 @@ class SimpleKayakExtractor:
             per_person = float(per_person_str)
             total = float(total_str)
             
-            print(f"  💰 Ceny: {per_person} PLN/os → {total} PLN łącznie ({pattern_used})")
+            print(f"Ceny: {per_person} PLN/os -> {total} PLN lacznie ({pattern_used})")
             
-            # Znajdź tekst oferty
+            # Znajdz tekst oferty
             price_pos = price_match.start()
             offer_start = max(0, price_pos - 1000)
             offer_text = content[offer_start:price_match.end()]
@@ -183,61 +255,62 @@ class SimpleKayakExtractor:
             return offer_text, per_person, total
             
         except Exception as e:
-            print(f"❌ Błąd parsowania: {e}")
+            print(f"Blad parsowania: {e}")
             import traceback
             traceback.print_exc()
             return None
     
-    def parse_offer_from_text(self, offer_text: str, per_person: float, total: float, airline_from_filename: str) -> dict:
-        """Parsuje szczegółowe dane oferty z tekstu"""
+    def parse_offer_from_text(self, offer_text: str, per_person: float, total: float, file_info: dict) -> dict:
+        """Parsuje szczegolowe dane oferty z tekstu - używa danych z nazwy pliku"""
         try:
-            print(f"  📄 Parsowanie oferty ({len(offer_text)} znaków)")
-            print(f"  ✈️  Linia z nazwy pliku: {airline_from_filename}")
+            print(f"Parsowanie oferty ({len(offer_text)} znakow)")
+            print(f"Linia z nazwy pliku: {file_info['airline_filter']}")
+            print(f"Trasa z nazwy pliku: {file_info['departure_airport']} -> {file_info['destination_airport']}")
             
-            # Użyj nazwy linii z pliku jako głównej
-            airlines_outbound = airline_from_filename
-            airlines_return = airline_from_filename
+            # Uzyj nazwy linii z pliku jako glownej
+            airlines_outbound = file_info['airline_filter']
+            airlines_return = file_info['airline_filter']
             
-            # Znajdź lotniska
-            departure_airport, destination_airport = self.parse_airports(offer_text)
-            print(f"  🛫 Trasa: {departure_airport} → {destination_airport}")
+            # Uzyj lotnisk z nazwy pliku (priorytet)
+            departure_airport = file_info['departure_airport']
+            destination_airport = file_info['destination_airport']
             
-            # Znajdź czasy lotów
+            # Znajdz czasy lotow
             time_matches = re.findall(r'(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2}(?:\+\d)?)', offer_text)
             
             dep_time = arr_time = ret_dep_time = ret_arr_time = ""
             if len(time_matches) >= 1:
                 dep_time, arr_time = time_matches[0]
-                print(f"  🕐 Lot tam: {dep_time} → {arr_time}")
+                print(f"Lot tam: {dep_time} -> {arr_time}")
             if len(time_matches) >= 2:
                 ret_dep_time, ret_arr_time = time_matches[1]
-                print(f"  🕐 Lot powrót: {ret_dep_time} → {ret_arr_time}")
+                print(f"Lot powrot: {ret_dep_time} -> {ret_arr_time}")
             
-            # Znajdź czasy podróży (najdłuższe czasy w sekcjach)
+            # Znajdz czasy podrozy (najdluzsze czasy w sekcjach)
             duration_matches = re.findall(r'(\d+\s*h\s*\d+\s*min)', offer_text)
             total_travel_outbound = duration_matches[0] if len(duration_matches) >= 1 else ""
             total_travel_return = duration_matches[1] if len(duration_matches) >= 2 else ""
             
-            print(f"  ⏱️  Czasy podróży: tam {total_travel_outbound}, powrót {total_travel_return}")
+            print(f"Czasy podrozy: tam {total_travel_outbound}, powrot {total_travel_return}")
             
-            # Podziel tekst na sekcje (tam i powrót) - używamy nowej funkcji
+            # Podziel tekst na sekcje (tam i powrot) - uzywamy nowej funkcji
             outbound_section, return_section = self.split_offer_sections(offer_text)
             
-            # DEBUG: Pokaż fragmenty sekcji
-            print(f"    📄 Sekcja TAM: {outbound_section[:100]}...")
-            print(f"    📄 Sekcja POWRÓT: {return_section[:100]}...")
+            # DEBUG: Pokaz fragmenty sekcji
+            print(f"Sekcja TAM: {outbound_section[:100]}...")
+            print(f"Sekcja POWROT: {return_section[:100]}...")
             
             # Parsuj przesiadki dla lotu tam
             outbound_stops = self.parse_stopovers_detailed(outbound_section, "TAM")
             
-            # Parsuj przesiadki dla lotu powrót  
-            return_stops = self.parse_stopovers_detailed(return_section, "POWRÓT")
+            # Parsuj przesiadki dla lotu powrot  
+            return_stops = self.parse_stopovers_detailed(return_section, "POWROT")
             
-            # Oblicz rzeczywiste czasy lotów (bez przesiadek)
+            # Oblicz rzeczywiste czasy lotow (bez przesiadek)
             actual_flight_outbound = self.calculate_flight_times(total_travel_outbound, outbound_stops)
             actual_flight_return = self.calculate_flight_times(total_travel_return, return_stops)
             
-            print(f"  ✈️  Rzeczywiste czasy lotów: tam {actual_flight_outbound}, powrót {actual_flight_return}")
+            print(f"Rzeczywiste czasy lotow: tam {actual_flight_outbound}, powrot {actual_flight_return}")
             
             return {
                 'total_price': total,
@@ -271,16 +344,16 @@ class SimpleKayakExtractor:
             }
             
         except Exception as e:
-            print(f"❌ Błąd parsowania szczegółów: {e}")
+            print(f"Blad parsowania szczegolow: {e}")
             import traceback
             traceback.print_exc()
             return {
                 'total_price': total,
                 'price_per_person': per_person,
-                'airlines_outbound': airline_from_filename,
-                'airlines_return': airline_from_filename,
-                'departure_airport': "WAW",
-                'destination_airport': "ICN",
+                'airlines_outbound': file_info.get('airline_filter', 'UNKNOWN'),
+                'airlines_return': file_info.get('airline_filter', 'UNKNOWN'),
+                'departure_airport': file_info.get('departure_airport', 'WAW'),
+                'destination_airport': file_info.get('destination_airport', 'ICN'),
                 'departure_time': "",
                 'arrival_time': "",
                 'return_departure_time': "",
@@ -300,38 +373,38 @@ class SimpleKayakExtractor:
             }
     
     def split_offer_sections(self, offer_text: str) -> tuple:
-        """Dzieli tekst oferty na sekcje tam i powrót"""
+        """Dzieli tekst oferty na sekcje tam i powrot"""
         try:
-            # Znajdź wszystkie czasy lotów, żeby określić podział
+            # Znajdz wszystkie czasy lotow, zeby okreslic podzial
             time_matches = list(re.finditer(r'(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2}(?:\+\d)?)', offer_text))
             
             if len(time_matches) < 2:
-                print(f"    ⚠️  Znaleziono tylko {len(time_matches)} czasów lotów")
+                print(f"Znaleziono tylko {len(time_matches)} czasow lotow")
                 return offer_text, ""
             
-            # Pierwszy czas to lot tam, drugi to lot powrót
+            # Pierwszy czas to lot tam, drugi to lot powrot
             first_time_end = time_matches[0].end()
             second_time_start = time_matches[1].start()
             
-            # Znajdź punkt podziału między lotami
-            # Szukamy pustej linii lub charakterystycznego wzorca między czasami
+            # Znajdz punkt podzialu miedzy lotami
+            # Szukamy pustej linii lub charakterystycznego wzorca miedzy czasami
             middle_text = offer_text[first_time_end:second_time_start]
             
-            # Znajdź najlepszy punkt podziału
+            # Znajdz najlepszy punkt podzialu
             split_point = first_time_end
             
-            # Szukaj wzorców które mogą oznaczać koniec pierwszego lotu
+            # Szukaj wzorcow ktore moga oznaczac koniec pierwszego lotu
             patterns = [
                 r'\n\s*\n',  # Pusta linia
                 r'\d+\s*h\s*\d+\s*min\s*\n',  # Czas trwania + nowa linia
-                r'Air\s+China\s*\n',  # Nazwa linii na początku powrotu
+                r'Air\s+China\s*\n',  # Nazwa linii na poczatku powrotu
                 r'\n[A-Z]{3}\s*\n'  # Kod lotniska na nowej linii
             ]
             
             for pattern in patterns:
                 matches = list(re.finditer(pattern, middle_text))
                 if matches:
-                    # Weź ostatnie dopasowanie jako punkt podziału
+                    # Wez ostatnie dopasowanie jako punkt podzialu
                     last_match = matches[-1]
                     split_point = first_time_end + last_match.end()
                     break
@@ -339,18 +412,18 @@ class SimpleKayakExtractor:
             outbound_section = offer_text[:split_point]
             return_section = offer_text[split_point:]
             
-            print(f"    📦 Podział sekcji: tam ({len(outbound_section)} znaków), powrót ({len(return_section)} znaków)")
+            print(f"Podzial sekcji: tam ({len(outbound_section)} znakow), powrot ({len(return_section)} znakow)")
             
             return outbound_section, return_section
             
         except Exception as e:
-            print(f"    ⚠️  Błąd podziału sekcji: {e}")
-            # Fallback - podziel po połowie
+            print(f"Blad podzialu sekcji: {e}")
+            # Fallback - podziel po polowie
             mid = len(offer_text) // 2
             return offer_text[:mid], offer_text[mid:]
     
     def parse_stopovers_detailed(self, text: str, section_name: str = "") -> dict:
-        """Parsuje szczegółowe informacje o przesiadkach"""
+        """Parsuje szczegolowe informacje o przesiadkach"""
         # Wzorzec: PEK Przesiadka 4 h 15 min, lub VIE Przesiadka 1 h 50 min,
         stopover_pattern = r'([A-Z]{3})\s*Przesiadka\s*(\d+\s*h\s*\d+\s*min)'
         stopovers = re.findall(stopover_pattern, text)
@@ -363,7 +436,7 @@ class SimpleKayakExtractor:
         }
         
         if section_name:
-            print(f"    🔄 Przesiadki {section_name}: {len(stopovers)}")
+            print(f"Przesiadki {section_name}: {len(stopovers)}")
         
         for i, (airport, duration) in enumerate(stopovers[:3]):  # Max 3 przesiadki
             result[f'stop{i+1}_airport'] = airport
@@ -379,7 +452,7 @@ class SimpleKayakExtractor:
             return ""
         
         try:
-            # Parsuj całkowity czas (np. "15 h 05 min")
+            # Parsuj calkowity czas (np. "15 h 05 min")
             total_match = re.match(r'(\d+)\s*h\s*(\d+)\s*min', total_time)
             if not total_match:
                 return ""
@@ -403,7 +476,7 @@ class SimpleKayakExtractor:
             flight_time_minutes = total_time_minutes - stopover_minutes
             
             if flight_time_minutes <= 0:
-                return total_time  # Jeśli coś poszło nie tak, zwróć oryginalny czas
+                return total_time  # Jesli cos poszlo nie tak, zwroc oryginalny czas
             
             flight_hours = flight_time_minutes // 60
             flight_mins = flight_time_minutes % 60
@@ -411,21 +484,21 @@ class SimpleKayakExtractor:
             return f"{flight_hours} h {flight_mins:02d} min"
             
         except Exception as e:
-            print(f"    ⚠️  Błąd obliczania czasu lotu: {e}")
+            print(f"Blad obliczania czasu lotu: {e}")
             return total_time
     
     def parse_airports(self, text: str) -> tuple:
-        """Wyciąga lotniska wylotu i docelowe"""
-        # Szukaj WAW i ICN w tekście
-        departure_airport = "WAW"  # Domyślnie WAW (Warszawa)
-        destination_airport = "ICN"  # Domyślnie ICN (Inczhon)
+        """Wyciaga lotniska wylotu i docelowe"""
+        # Szukaj WAW i ICN w tekscie
+        departure_airport = "WAW"  # Domyslnie WAW (Warszawa)
+        destination_airport = "ICN"  # Domyslnie ICN (Inczhon)
         
-        # Sprawdź kierunek lotu w tekście
+        # Sprawdz kierunek lotu w tekscie
         if "WAW" in text and "ICN" in text:
             waw_pos = text.find("WAW")
             icn_pos = text.find("ICN")
             
-            # Pierwszy występujący to prawdopodobnie wylot
+            # Pierwszy wystepujacy to prawdopodobnie wylot
             if waw_pos < icn_pos:
                 departure_airport = "WAW"
                 destination_airport = "ICN"
@@ -440,29 +513,29 @@ class SimpleKayakExtractor:
         folder_path = Path(session_folder)
         
         if not folder_path.exists():
-            print(f"❌ Folder nie istnieje: {session_folder}")
+            print(f"Folder nie istnieje: {session_folder}")
             return []
         
         txt_files = list(folder_path.glob("*.txt"))
-        print(f"🔍 Znaleziono {len(txt_files)} plików .txt")
+        print(f"Znaleziono {len(txt_files)} plikow .txt")
         
         offers = []
         
         for txt_file in txt_files:
-            print(f"📄 Przetwarzanie: {txt_file.name}")
+            print(f"\nPrzetwarzanie: {txt_file.name}")
             
             try:
                 with open(txt_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                 
                 file_info = self.parse_filename(txt_file.name)
-                print(f"  📋 Z nazwy pliku: {file_info['airline_filter']} | {file_info['departure_date']} → {file_info['return_date']}")
+                print(f"Z nazwy pliku: {file_info['airline_filter']} | {file_info['departure_airport']}->{file_info['destination_airport']} | {file_info['departure_date']} -> {file_info['return_date']}")
                 
                 result = self.extract_first_offer_simple(content)
                 
                 if result and len(result) == 3:  # offer_text, per_person, total
                     offer_text, per_person, total = result
-                    offer_data = self.parse_offer_from_text(offer_text, per_person, total, file_info['airline_filter'])
+                    offer_data = self.parse_offer_from_text(offer_text, per_person, total, file_info)
                     
                     if offer_data:
                         offer = SimpleOffer(
@@ -473,14 +546,15 @@ class SimpleKayakExtractor:
                             **offer_data
                         )
                         offers.append(offer)
-                        print(f"  ✅ {offer.total_price:,.0f} PLN - {offer.airlines_outbound}")
+                        # Użyj normalnych znaków zamiast emoji
+                        print(f"OK {offer.total_price:,.0f} PLN - {offer.airlines_outbound} ({offer.departure_airport}->{offer.destination_airport})")
                     else:
-                        print(f"  ❌ Błąd parsowania szczegółów oferty")
+                        print(f"BLAD Blad parsowania szczegolow oferty")
                 else:
-                    print(f"  ❌ Nie znaleziono oferty")
+                    print(f"BLAD Nie znaleziono oferty")
                     
             except Exception as e:
-                print(f"  ❌ Błąd: {e}")
+                print(f"BLAD: {e}")
         
         return offers
     
@@ -494,6 +568,7 @@ class SimpleKayakExtractor:
         data = []
         for offer in offers:
             data.append({
+                # PODSTAWOWE INFORMACJE
                 'Plik': offer.filename,
                 'Filtr linii': offer.airline_filter,
                 'Data wylotu': offer.departure_date,
@@ -501,25 +576,28 @@ class SimpleKayakExtractor:
                 'Cena łączna (PLN)': offer.total_price,
                 'Cena za osobę (PLN)': offer.price_per_person,
                 
-                # Linie i lotniska
-                'Linie lotnicze tam': offer.airlines_outbound,
-                'Linie lotnicze powrót': offer.airlines_return,
+                # LOTNISKA (NOWE/POPRAWIONE KOLUMNY)
                 'Lotnisko wylotu': offer.departure_airport,
                 'Lotnisko docelowe': offer.destination_airport,
+                'Trasa': f"{offer.departure_airport} → {offer.destination_airport}",
                 
-                # Czasy
+                # LINIE LOTNICZE
+                'Linie lotnicze tam': offer.airlines_outbound,
+                'Linie lotnicze powrót': offer.airlines_return,
+                
+                # CZASY LOTÓW
                 'Wylot tam': offer.departure_time,
                 'Przylot tam': offer.arrival_time,
                 'Wylot powrót': offer.return_departure_time,
                 'Przylot powrót': offer.return_arrival_time,
                 
-                # Czasy podróży
+                # CZASY PODRÓŻY
                 'Czas podróży tam (total)': offer.total_travel_time_outbound,
                 'Czas podróży powrót (total)': offer.total_travel_time_return,
                 'Czas lotu tam (bez przesiadek)': offer.actual_flight_time_outbound,
                 'Czas lotu powrót (bez przesiadek)': offer.actual_flight_time_return,
                 
-                # Przesiadki tam
+                # PRZESIADKI TAM
                 'Przesiadki tam': offer.stops_outbound,
                 'Przesiadka 1 tam - lotnisko': offer.stop1_outbound_airport,
                 'Przesiadka 1 tam - czas': offer.stop1_outbound_duration,
@@ -528,7 +606,7 @@ class SimpleKayakExtractor:
                 'Przesiadka 3 tam - lotnisko': offer.stop3_outbound_airport,
                 'Przesiadka 3 tam - czas': offer.stop3_outbound_duration,
                 
-                # Przesiadki powrót
+                # PRZESIADKI POWRÓT
                 'Przesiadki powrót': offer.stops_return,
                 'Przesiadka 1 powrót - lotnisko': offer.stop1_return_airport,
                 'Przesiadka 1 powrót - czas': offer.stop1_return_duration,
@@ -543,58 +621,131 @@ class SimpleKayakExtractor:
         # Sortuj po cenie
         df = df.sort_values('Cena łączna (PLN)', ascending=True)
         
-        # Zapisz do Excel
-        df.to_excel(output_file, index=False, engine='openpyxl')
+        # Zapisz do Excel z wieloma arkuszami
+        with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
+            # Główny arkusz - wszystkie oferty
+            df.to_excel(writer, sheet_name='Wszystkie oferty', index=False)
+            
+            # Najlepsze oferty per linia
+            if len(offers) > 0:
+                best_per_airline = df.groupby('Filtr linii').first().reset_index()
+                best_per_airline = best_per_airline.sort_values('Cena łączna (PLN)', ascending=True)
+                best_per_airline.to_excel(writer, sheet_name='Najlepsze per linia', index=False)
+                
+                # Statystyki tras
+                route_stats = df.groupby('Trasa').agg({
+                    'Cena łączna (PLN)': ['count', 'min', 'max', 'mean'],
+                    'Przesiadki tam': 'mean',
+                    'Przesiadki powrót': 'mean'
+                }).round(0)
+                route_stats.columns = ['Liczba ofert', 'Min cena', 'Max cena', 'Średnia cena', 'Śr. przesiadki tam', 'Śr. przesiadki powrót']
+                route_stats.to_excel(writer, sheet_name='Statystyki tras')
+            
+            # Podsumowanie
+            if offers:
+                summary_data = {
+                    'Metryka': [
+                        'Liczba plików przetworzonych',
+                        'Liczba znalezionych ofert', 
+                        'Najniższa cena (PLN)',
+                        'Najwyższa cena (PLN)',
+                        'Średnia cena (PLN)',
+                        'Mediana ceny (PLN)',
+                        'Unikalne trasy',
+                        'Unikalne linie lotnicze'
+                    ],
+                    'Wartość': [
+                        len(offers),
+                        len([o for o in offers if o.total_price > 0]),
+                        f"{min(o.total_price for o in offers if o.total_price > 0):,.0f}",
+                        f"{max(o.total_price for o in offers if o.total_price > 0):,.0f}",
+                        f"{sum(o.total_price for o in offers if o.total_price > 0) / len([o for o in offers if o.total_price > 0]):,.0f}",
+                        f"{sorted([o.total_price for o in offers if o.total_price > 0])[len([o for o in offers if o.total_price > 0])//2]:,.0f}",
+                        len(df['Trasa'].unique()),
+                        len(df['Filtr linii'].unique())
+                    ]
+                }
+                
+                summary_df = pd.DataFrame(summary_data)
+                summary_df.to_excel(writer, sheet_name='Podsumowanie', index=False)
         
-        print(f"📊 Eksport zakończony: {output_file}")
-        print(f"📈 Wyeksportowano {len(offers)} ofert")
+        print(f"\nEksport zakończony: {output_file}")
+        print(f"Wyeksportowano {len(offers)} ofert")
         
         if offers:
-            prices = [offer.total_price for offer in offers]
-            print(f"💰 Najniższa cena: {min(prices):,.0f} PLN")
-            print(f"💰 Najwyższa cena: {max(prices):,.0f} PLN")
-            print(f"💰 Średnia cena: {sum(prices)/len(prices):,.0f} PLN")
+            valid_prices = [offer.total_price for offer in offers if offer.total_price > 0]
+            if valid_prices:
+                print(f"Najniższa cena: {min(valid_prices):,.0f} PLN")
+                print(f"Najwyższa cena: {max(valid_prices):,.0f} PLN")
+                print(f"Średnia cena: {sum(valid_prices)/len(valid_prices):,.0f} PLN")
+                
+                # Pokaż najlepsze trasy
+                routes = {}
+                for offer in offers:
+                    if offer.total_price > 0:
+                        route = f"{offer.departure_airport}→{offer.destination_airport}"
+                        if route not in routes or offer.total_price < routes[route]:
+                            routes[route] = offer.total_price
+                
+                print(f"\nNajlepsze ceny per trasa:")
+                for route, price in sorted(routes.items(), key=lambda x: x[1])[:5]:
+                    print(f"   {route}: {price:,.0f} PLN")
         
         return output_file
 
 def main():
-    """Główna funkcja"""
+    """Glowna funkcja"""
     import sys
     
     if len(sys.argv) < 2:
-        print("🚀 SIMPLE KAYAK DATA EXTRACTOR")
+        print("SIMPLE KAYAK DATA EXTRACTOR")
         print("=" * 40)
-        print("Użycie:")
+        print("Uzycie:")
         print(f"  python {sys.argv[0]} <folder_sesji>")
         print()
-        print("Przykład:")
+        print("Przyklad:")
         print(f"  python {sys.argv[0]} kayak_text_data/txt_session_20250616_194500")
         print()
         
-        # Pokaż dostępne foldery
+        # Pokaz dostepne foldery
         base_dir = Path("kayak_text_data")
         if base_dir.exists():
             sessions = [d for d in base_dir.iterdir() if d.is_dir() and d.name.startswith('txt_session_')]
             if sessions:
-                print("📁 Dostępne sesje:")
+                print("Dostepne sesje:")
                 for session in sorted(sessions, reverse=True):
                     txt_count = len(list(session.glob("*.txt")))
-                    print(f"  {session.name} ({txt_count} plików)")
+                    print(f"  {session.name} ({txt_count} plikow)")
+        
+        # Sprawdź też excel_session
+        excel_base_dir = Path("kayak_excel_data")
+        if excel_base_dir.exists():
+            excel_sessions = [d for d in excel_base_dir.iterdir() if d.is_dir() and d.name.startswith('excel_session_')]
+            if excel_sessions:
+                print("\nDostepne sesje Excel:")
+                for session in sorted(excel_sessions, reverse=True):
+                    txt_count = len(list(session.glob("*.txt")))
+                    print(f"  {session.name} ({txt_count} plikow)")
         
         return 1
     
     session_folder = sys.argv[1]
     
-    print(f"🔄 Przetwarzanie sesji: {session_folder}")
+    print(f"Przetwarzanie sesji: {session_folder}")
+    
+    # Sprawdź czy folder istnieje
+    if not os.path.exists(session_folder):
+        print(f"Folder nie istnieje: {session_folder}")
+        return 1
     
     extractor = SimpleKayakExtractor()
     offers = extractor.process_session_folder(session_folder)
     
     if offers:
         output_file = extractor.export_to_excel(offers)
-        print(f"✅ Gotowe! Sprawdź plik: {output_file}")
+        print(f"Gotowe! Sprawdz plik: {output_file}")
     else:
-        print("❌ Brak ofert do eksportu")
+        print("Brak ofert do eksportu")
     
     return 0
 

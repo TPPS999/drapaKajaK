@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Kayak Excel Scraper - LISTA LOTÓW Z EXCEL
-Wczytuje listę konkretnych lotów z pliku Excel i sprawdza tylko te loty
+Kayak Excel Scraper - LISTA LOTOW Z EXCEL
+Wczytuje liste konkretnych lotow z pliku Excel i sprawdza tylko te loty
 """
 
 import time
@@ -83,7 +83,7 @@ class SimpleDriver:
         return webdriver.Chrome(options=options)
 
 class KayakExcelScraper:
-    """Scraper dla listy lotów z Excel"""
+    """Scraper dla listy lotow z Excel"""
     
     def __init__(self, flights_file: str = "flights_list.xlsx", config_file: str = "excel_config.json", 
                  output_dir: str = "kayak_excel_data", rolling_mode: bool = False):
@@ -99,7 +99,7 @@ class KayakExcelScraper:
         if self.rolling_mode:
             signal.signal(signal.SIGINT, self._signal_handler)
         
-        # Wczytaj konfigurację
+        # Wczytaj konfiguracje
         self.config = self._load_config()
         self.airlines = self.config["airlines"]
         
@@ -109,34 +109,34 @@ class KayakExcelScraper:
             self._create_session_folder()
     
     def _load_config(self) -> dict:
-        """Wczytuje konfigurację"""
+        """Wczytuje konfiguracje"""
         try:
             with open(self.config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-            self.logger.info(f"✅ Config: {self.config_file}")
+            self.logger.info(f"Config: {self.config_file}")
             return config
         except FileNotFoundError:
-            self.logger.error(f"❌ Brak config: {self.config_file}")
+            self.logger.error(f"Brak config: {self.config_file}")
             self._create_default_config()
             raise
         except Exception as e:
-            self.logger.error(f"❌ Błąd config: {e}")
+            self.logger.error(f"Blad config: {e}")
             raise
     
     def _create_default_config(self):
-        """Tworzy domyślny config"""
+        """Tworzy domyslny config"""
         default_config = {
             "_comment": "Konfiguracja dla Excel Scrapera",
-            "_comment_passengers": "Liczba pasażerów (1-4)",
-            "_comment_delays": "Opóźnienia między zapytaniami w sekundach [min, max]",
-            "_comment_rolling": "rolling_break_minutes - przerwa między rundami w trybie rolling (minuty)",
-            "_comment_excel_file": "Plik Excel powinien mieć kolumny: 'Lotnisko wylotu', 'Lotnisko docelowe', 'Filtr linii', 'Data wylotu', 'Data powrotu'",
-            "_comment_excel_example": "Przykład: WAW | ICN | Turkish | 2025-10-22 | 2025-11-10",
+            "_comment_passengers": "Liczba pasazerow (1-4)",
+            "_comment_delays": "Opoznienia miedzy zapytaniami w sekundach [min, max]",
+            "_comment_rolling": "rolling_break_minutes - przerwa miedzy rundami w trybie rolling (minuty)",
+            "_comment_excel_file": "Plik Excel powinien miec kolumny: 'Lotnisko wylotu', 'Lotnisko docelowe', 'Filtr linii', 'Data wylotu', 'Data powrotu'",
+            "_comment_excel_example": "Przyklad: WAW | ICN | Turkish | 2025-10-22 | 2025-11-10",
             
             "scraping_config": {
                 "passengers": 2,
                 "delay_between_requests": [20, 35],
-                "randomize_order": true,
+                "randomize_order": True,
                 "rolling_break_minutes": [30, 60]
             },
             
@@ -164,7 +164,7 @@ class KayakExcelScraper:
         with open(self.config_file, 'w', encoding='utf-8') as f:
             json.dump(default_config, f, indent=4, ensure_ascii=False)
         
-        print(f"✅ Utworzono config: {self.config_file}")
+        print(f"Utworzono config: {self.config_file}")
     
     def _setup_logger(self):
         """Logger"""
@@ -181,7 +181,7 @@ class KayakExcelScraper:
     
     def _signal_handler(self, signum, frame):
         """Handler dla Ctrl+C w rolling mode"""
-        self.logger.info("\n🛑 Otrzymano sygnał zatrzymania...")
+        self.logger.info("\nOtrzymano sygnal zatrzymania...")
         self.stop_rolling = True
     
     def _create_rolling_folder(self):
@@ -190,7 +190,7 @@ class KayakExcelScraper:
         os.makedirs(rolling_folder, exist_ok=True)
         self.session_dir = rolling_folder
         
-        self.logger.info(f"📁 Rolling mode - wszystkie pliki w: {self.session_dir}")
+        self.logger.info(f"Rolling mode - wszystkie pliki w: {self.session_dir}")
     
     def _create_session_folder(self):
         """Folder sesji"""
@@ -198,10 +198,10 @@ class KayakExcelScraper:
         self.session_dir = os.path.join(self.output_dir, f"excel_session_{timestamp}")
         os.makedirs(self.session_dir, exist_ok=True)
         
-        self.logger.info(f"📁 Sesja: {self.session_dir}")
+        self.logger.info(f"Sesja: {self.session_dir}")
     
     def _create_sample_excel(self):
-        """Tworzy przykładowy plik Excel"""
+        """Tworzy przykladowy plik Excel"""
         sample_data = [
             {"Lotnisko wylotu": "WAW", "Lotnisko docelowe": "ICN", "Filtr linii": "Turkish", "Data wylotu": "2025-10-22", "Data powrotu": "2025-11-10"},
             {"Lotnisko wylotu": "WAW", "Lotnisko docelowe": "ICN", "Filtr linii": "China Air", "Data wylotu": "2025-10-17", "Data powrotu": "2025-11-09"},
@@ -213,53 +213,53 @@ class KayakExcelScraper:
         df = pd.DataFrame(sample_data)
         df.to_excel(self.flights_file, index=False)
         
-        print(f"✅ Utworzono przykładowy Excel: {self.flights_file}")
-        print("📝 Edytuj plik i uruchom ponownie")
+        print(f"Utworzono przykladowy Excel: {self.flights_file}")
+        print("Edytuj plik i uruchom ponownie")
     
     def load_flights_from_excel(self) -> List[FlightTarget]:
         """Wczytuje loty z pliku Excel"""
         try:
-            # Sprawdź czy plik istnieje
+            # Sprawdz czy plik istnieje
             if not os.path.exists(self.flights_file):
-                self.logger.error(f"❌ Brak pliku: {self.flights_file}")
+                self.logger.error(f"Brak pliku: {self.flights_file}")
                 self._create_sample_excel()
-                raise FileNotFoundError(f"Utworzono przykładowy plik {self.flights_file}")
+                raise FileNotFoundError(f"Utworzono przykladowy plik {self.flights_file}")
             
             # Wczytaj Excel
             df = pd.read_excel(self.flights_file)
-            self.logger.info(f"📊 Wczytano Excel: {len(df)} wierszy")
+            self.logger.info(f"Wczytano Excel: {len(df)} wierszy")
             
-            # Sprawdź kolumny
+            # Sprawdz kolumny
             required_columns = ['Lotnisko wylotu', 'Lotnisko docelowe', 'Filtr linii', 'Data wylotu', 'Data powrotu']
             missing_columns = [col for col in required_columns if col not in df.columns]
             
             if missing_columns:
-                self.logger.error(f"❌ Brakujące kolumny: {missing_columns}")
+                self.logger.error(f"Brakujace kolumny: {missing_columns}")
                 self.logger.error(f"Wymagane kolumny: {required_columns}")
-                raise ValueError(f"Brakujące kolumny w Excel: {missing_columns}")
+                raise ValueError(f"Brakujace kolumny w Excel: {missing_columns}")
             
             # Konwertuj na FlightTarget
             flights = []
             
             for index, row in df.iterrows():
                 try:
-                    # Wyczyść dane
+                    # Wyczysc dane
                     origin = str(row['Lotnisko wylotu']).strip().upper()
                     destination = str(row['Lotnisko docelowe']).strip().upper()
                     airline_key = str(row['Filtr linii']).strip()
                     
-                    # Sprawdź czy dane są kompletne
+                    # Sprawdz czy dane sa kompletne
                     if pd.isna(row['Data wylotu']) or pd.isna(row['Data powrotu']) or pd.isna(row['Lotnisko wylotu']) or pd.isna(row['Lotnisko docelowe']):
-                        self.logger.warning(f"⚠️ Wiersz {index+2}: Puste pola, pomijam")
+                        self.logger.warning(f"Wiersz {index+2}: Puste pola, pomijam")
                         continue
                     
-                    # Walidacja kodów lotnisk (3 znaki)
+                    # Walidacja kodow lotnisk (3 znaki)
                     if len(origin) != 3 or len(destination) != 3:
-                        self.logger.warning(f"⚠️ Wiersz {index+2}: Nieprawidłowe kody lotnisk '{origin}'-'{destination}', pomijam")
+                        self.logger.warning(f"Wiersz {index+2}: Nieprawidlowe kody lotnisk '{origin}'-'{destination}', pomijam")
                         continue
                     
                     # Konwertuj daty
-                    # Obsługa różnych formatów dat
+                    # Obsluga roznych formatow dat
                     if isinstance(row['Data wylotu'], str):
                         dep_date = row['Data wylotu']
                     else:
@@ -270,9 +270,9 @@ class KayakExcelScraper:
                     else:
                         ret_date = row['Data powrotu'].strftime('%Y-%m-%d')
                     
-                    # Sprawdź czy linia istnieje w config
+                    # Sprawdz czy linia istnieje w config
                     if airline_key not in self.airlines:
-                        self.logger.warning(f"⚠️ Wiersz {index+2}: Nieznana linia '{airline_key}', pomijam")
+                        self.logger.warning(f"Wiersz {index+2}: Nieznana linia '{airline_key}', pomijam")
                         continue
                     
                     flight = FlightTarget(
@@ -284,46 +284,46 @@ class KayakExcelScraper:
                     )
                     
                     flights.append(flight)
-                    self.logger.debug(f"✅ Lot: {origin}→{destination} {airline_key} {dep_date}→{ret_date} ({flight.duration_days} dni)")
+                    self.logger.debug(f"Lot: {origin}-{destination} {airline_key} {dep_date}-{ret_date} ({flight.duration_days} dni)")
                     
                 except Exception as e:
-                    self.logger.warning(f"⚠️ Błąd wiersza {index+2}: {e}")
+                    self.logger.warning(f"Blad wiersza {index+2}: {e}")
                     continue
             
-            self.logger.info(f"✅ Załadowano {len(flights)} lotów z Excel")
+            self.logger.info(f"Zaladowano {len(flights)} lotow z Excel")
             
-            # Pokaż statystyki
+            # Pokaz statystyki
             airline_counts = {}
             route_counts = {}
             for flight in flights:
                 # Statystyki linii
                 airline_counts[flight.airline_key] = airline_counts.get(flight.airline_key, 0) + 1
                 # Statystyki tras
-                route = f"{flight.origin_airport}→{flight.destination_airport}"
+                route = f"{flight.origin_airport}-{flight.destination_airport}"
                 route_counts[route] = route_counts.get(route, 0) + 1
             
-            self.logger.info("📊 Linie w pliku:")
+            self.logger.info("Linie w pliku:")
             for airline, count in sorted(airline_counts.items()):
-                self.logger.info(f"   {airline}: {count} lotów")
+                self.logger.info(f"   {airline}: {count} lotow")
             
-            self.logger.info("🌍 Trasy w pliku:")
+            self.logger.info("Trasy w pliku:")
             for route, count in sorted(route_counts.items()):
-                self.logger.info(f"   {route}: {count} lotów")
+                self.logger.info(f"   {route}: {count} lotow")
             
             return flights
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd wczytywania Excel: {e}")
+            self.logger.error(f"Blad wczytywania Excel: {e}")
             raise
     
     def generate_requests(self, flights: List[FlightTarget]) -> List[ScrapingRequest]:
-        """Generuje zapytania na podstawie listy lotów"""
+        """Generuje zapytania na podstawie listy lotow"""
         requests = []
         passengers = self.config["scraping_config"]["passengers"]
         
         for flight in flights:
             if flight.airline_key not in self.airlines:
-                self.logger.warning(f"⚠️ Pomijam nieznana linię: {flight.airline_key}")
+                self.logger.warning(f"Pomijam nieznana linie: {flight.airline_key}")
                 continue
             
             airline_data = self.airlines[flight.airline_key]
@@ -336,46 +336,46 @@ class KayakExcelScraper:
             )
             requests.append(request)
         
-        # Randomizacja kolejności (jeśli włączona)
+        # Randomizacja kolejnosci (jesli wlaczona)
         if self.config["scraping_config"].get("randomize_order", True):
             random.shuffle(requests)
-            self.logger.info("🔀 Losowa kolejność zapytań")
+            self.logger.info("Losowa kolejnosc zapytan")
         
-        self.logger.info(f"🎯 {len(requests)} zapytań do wykonania")
+        self.logger.info(f"{len(requests)} zapytan do wykonania")
         return requests
     
     def scrape_text_only(self, request: ScrapingRequest, round_number: int = None) -> TextResult:
-        """Główna funkcja scrapingu"""
+        """Glowna funkcja scrapingu"""
         driver = None
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
         
-        # Nazwa pliku z trasą + ewentualnie numer rundy
+        # Nazwa pliku z kodami lotnisk + linia + daty + timestamp
         if round_number:
-            base_name = f"R{round_number:03d}_{request.target.origin_airport}-{request.target.destination_airport}_{request.target.airline_key}_{request.target.departure_date}_{request.target.return_date}_{timestamp}"
+            base_name = f"R{round_number:03d}_{request.target.origin_airport}_{request.target.destination_airport}_{request.target.airline_key}_{request.target.departure_date}_{request.target.return_date}_{timestamp}"
         else:
-            base_name = f"{request.target.origin_airport}-{request.target.destination_airport}_{request.target.airline_key}_{request.target.departure_date}_{request.target.return_date}_{timestamp}"
+            base_name = f"{request.target.origin_airport}_{request.target.destination_airport}_{request.target.airline_key}_{request.target.departure_date}_{request.target.return_date}_{timestamp}"
         
         try:
-            self.logger.info(f"🔍 {request.airline_name} | {request.target.origin_airport}→{request.target.destination_airport} | {request.target.departure_date}→{request.target.return_date} ({request.target.duration_days}d)")
+            self.logger.info(f"{request.airline_name} | {request.target.origin_airport}-{request.target.destination_airport} | {request.target.departure_date}-{request.target.return_date} ({request.target.duration_days}d)")
             
-            # Utwórz driver
+            # Utworz driver
             driver = SimpleDriver.create_driver()
             driver.set_page_load_timeout(45)
             
             # URL - DYNAMICZNY na podstawie lotnisk z Excel
             url = f"https://www.kayak.pl/flights/{request.target.origin_airport}-{request.target.destination_airport}/{request.target.departure_date}/{request.target.return_date}/{request.passengers}adults?sort=price_a&{request.airline_filter}"
             
-            # Krótkie opóźnienie
+            # Krotkie opoznienie
             delay = random.uniform(2, 5)
             time.sleep(delay)
             
-            # Otwórz stronę
-            self.logger.info(f"🌐 Otwieram stronę...")
+            # Otworz strone
+            self.logger.info(f"Otwieram strone...")
             driver.get(url)
             
-            # DŁUGIE CZEKANIE - 12s + losowy składnik
+            # DLUGIE CZEKANIE - 12s + losowy skladnik
             wait_time = 12 + random.uniform(3, 8)
-            self.logger.info(f"⏳ Czekam {wait_time:.1f}s...")
+            self.logger.info(f"Czekam {wait_time:.1f}s...")
             time.sleep(wait_time)
             
             # Pobierz dane
@@ -383,13 +383,13 @@ class KayakExcelScraper:
             body = driver.find_element(By.TAG_NAME, "body")
             page_text = body.text
             
-            # Przygotuj pełny tekst
+            # Przygotuj pelny tekst
             full_text = f"""URL: {url}
 Title: {page_title}
 Timestamp: {timestamp}
 Round: {round_number if round_number else "Single"}
-Route: {request.target.origin_airport} → {request.target.destination_airport}
-Flight: {request.airline_name} | {request.target.departure_date} → {request.target.return_date} | {request.passengers} pax
+Route: {request.target.origin_airport} - {request.target.destination_airport}
+Flight: {request.airline_name} | {request.target.departure_date} - {request.target.return_date} | {request.passengers} pax
 Duration: {request.target.duration_days} days
 Airline Filter: {request.airline_filter}
 {'='*80}
@@ -403,7 +403,7 @@ Airline Filter: {request.airline_filter}
                 f.write(full_text)
             
             text_length = len(page_text)
-            self.logger.info(f"✅ Zapisano: {text_length} znaków → {os.path.basename(text_path)}")
+            self.logger.info(f"Zapisano: {text_length} znakow - {os.path.basename(text_path)}")
             
             return TextResult(
                 request=request,
@@ -417,7 +417,7 @@ Airline Filter: {request.airline_filter}
             )
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd: {str(e)}")
+            self.logger.error(f"Blad: {str(e)}")
             
             return TextResult(
                 request=request,
@@ -457,19 +457,44 @@ Airline Filter: {request.airline_filter}
             with open(summary_path, 'w', encoding='utf-8') as f:
                 json.dump(summary, f, indent=2, ensure_ascii=False)
             
-            self.logger.info(f"💾 Podsumowanie: {summary_path}")
+            self.logger.info(f"Podsumowanie: {summary_path}")
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd zapisu podsumowania: {e}")
+            self.logger.error(f"Blad zapisu podsumowania: {e}")
+    
+    def save_round_summary(self, round_number: int, flights: List[FlightTarget], requests: List[ScrapingRequest], results: List[TextResult]):
+        """Zapisz podsumowanie rundy"""
+        try:
+            summary = {
+                "round_number": round_number,
+                "round_timestamp": datetime.now().isoformat(),
+                "flights_file": self.flights_file,
+                "total_flights_in_excel": len(flights),
+                "total_requests": len(requests),
+                "successful": len([r for r in results if r.success]),
+                "failed": len([r for r in results if not r.success]),
+                "airlines_processed": list(set([r.request.target.airline_key for r in results])),
+                "total_text_length": sum([r.text_length for r in results if r.success]),
+                "results": [asdict(res) for res in results]
+            }
+            
+            summary_path = os.path.join(self.session_dir, f"round_{round_number:03d}_summary.json")
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary, f, indent=2, ensure_ascii=False)
+            
+            self.logger.info(f"Podsumowanie rundy: {summary_path}")
+            
+        except Exception as e:
+            self.logger.error(f"Blad zapisu podsumowania rundy: {e}")
     
     def run_scraping_session(self):
-        """Wykonuje sesję scrapingu na podstawie Excel"""
+        """Wykonuje sesje scrapingu na podstawie Excel"""
         
-        self.logger.info("🚀" + "="*60)
-        self.logger.info("🎯 KAYAK EXCEL SCRAPER - SESJA ROZPOCZĘTA")
-        self.logger.info(f"📊 Plik lotów: {self.flights_file}")
-        self.logger.info(f"👥 Pasażerowie: {self.config['scraping_config']['passengers']}")
-        self.logger.info(f"📁 Dane: {self.session_dir}")
+        self.logger.info("="*60)
+        self.logger.info("KAYAK EXCEL SCRAPER - SESJA ROZPOCZETA")
+        self.logger.info(f"Plik lotow: {self.flights_file}")
+        self.logger.info(f"Pasazerowie: {self.config['scraping_config']['passengers']}")
+        self.logger.info(f"Dane: {self.session_dir}")
         self.logger.info("="*60)
         
         try:
@@ -477,72 +502,72 @@ Airline Filter: {request.airline_filter}
             flights = self.load_flights_from_excel()
             
             if not flights:
-                self.logger.error("❌ Brak lotów do sprawdzenia!")
+                self.logger.error("Brak lotow do sprawdzenia!")
                 return
             
             # Generuj zapytania
             requests = self.generate_requests(flights)
             
             if not requests:
-                self.logger.error("❌ Brak zapytań do wykonania!")
+                self.logger.error("Brak zapytan do wykonania!")
                 return
             
             results = []
             delay_range = self.config["scraping_config"]["delay_between_requests"]
             
             for i, request in enumerate(requests, 1):
-                self.logger.info(f"\n🔄 [{i}/{len(requests)}] {request.target.origin_airport}→{request.target.destination_airport} | {request.airline_name} | {request.target.departure_date}→{request.target.return_date}")
+                self.logger.info(f"\n[{i}/{len(requests)}] {request.target.origin_airport}-{request.target.destination_airport} | {request.airline_name} | {request.target.departure_date}-{request.target.return_date}")
                 
                 # Wykonaj zapytanie
                 result = self.scrape_text_only(request)
                 results.append(result)
                 
-                # Statystyki na bieżąco
+                # Statystyki na biezaco
                 successful = len([r for r in results if r.success])
                 failed = len([r for r in results if not r.success])
                 
-                self.logger.info(f"📊 Progress: {successful} ✅ | {failed} ❌ | {len(requests)-i} pozostało")
+                self.logger.info(f"Progress: {successful} sukces | {failed} bledy | {len(requests)-i} pozostalo")
                 
-                # Opóźnienie między zapytaniami
+                # Opoznienie miedzy zapytaniami
                 if i < len(requests):
                     delay = random.uniform(delay_range[0], delay_range[1])
-                    self.logger.info(f"💤 Opóźnienie: {delay:.1f}s")
+                    self.logger.info(f"Opoznienie: {delay:.1f}s")
                     time.sleep(delay)
             
             # Zapisz podsumowanie
             self.save_session_summary(flights, requests, results)
             
-            # Podsumowanie końcowe
+            # Podsumowanie koncowe
             successful = len([r for r in results if r.success])
             failed = len([r for r in results if not r.success])
             total_chars = sum([r.text_length for r in results if r.success])
             
-            self.logger.info("\n🏁" + "="*60)
-            self.logger.info("🎉 SESJA ZAKOŃCZONA!")
-            self.logger.info(f"📊 WYNIKI:")
-            self.logger.info(f"   📊 Loty w Excel: {len(flights)}")
-            self.logger.info(f"   🎯 Zapytania: {len(requests)}")
-            self.logger.info(f"   ✅ Sukces: {successful}")
-            self.logger.info(f"   ❌ Błędy: {failed}")
-            self.logger.info(f"   📈 Skuteczność: {(successful/len(results)*100):.1f}%")
-            self.logger.info(f"   📝 Zebranych znaków: {total_chars:,}")
-            self.logger.info(f"📁 Dane: {self.session_dir}")
+            self.logger.info("\n" + "="*60)
+            self.logger.info("SESJA ZAKONCZONA!")
+            self.logger.info(f"WYNIKI:")
+            self.logger.info(f"   Loty w Excel: {len(flights)}")
+            self.logger.info(f"   Zapytania: {len(requests)}")
+            self.logger.info(f"   Sukces: {successful}")
+            self.logger.info(f"   Bledy: {failed}")
+            self.logger.info(f"   Skutecznosc: {(successful/len(results)*100):.1f}%")
+            self.logger.info(f"   Zebranych znakow: {total_chars:,}")
+            self.logger.info(f"Dane: {self.session_dir}")
             self.logger.info("="*60)
             
             return results
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd sesji: {e}")
+            self.logger.error(f"Blad sesji: {e}")
             return None
     
     def run_rolling_mode(self):
-        """Uruchamia rolling mode - działa w kółko"""
+        """Uruchamia rolling mode - dziala w kolko"""
         
-        self.logger.info("🔄" + "="*60)
-        self.logger.info("🎯 KAYAK ROLLING MODE - URUCHOMIONY")
-        self.logger.info(f"📊 Plik lotów: {self.flights_file}")
-        self.logger.info(f"📁 Wszystkie pliki w: {self.session_dir}")
-        self.logger.info(f"⚠️ Zatrzymanie: Ctrl+C")
+        self.logger.info("="*60)
+        self.logger.info("KAYAK ROLLING MODE - URUCHOMIONY")
+        self.logger.info(f"Plik lotow: {self.flights_file}")
+        self.logger.info(f"Wszystkie pliki w: {self.session_dir}")
+        self.logger.info(f"Zatrzymanie: Ctrl+C")
         self.logger.info("="*60)
         
         round_number = 1
@@ -552,9 +577,9 @@ Airline Filter: {request.airline_filter}
         
         try:
             while not self.stop_rolling:
-                self.logger.info(f"\n🔄 RUNDA {round_number} - {datetime.now().strftime('%H:%M:%S')}")
+                self.logger.info(f"\nRUNDA {round_number} - {datetime.now().strftime('%H:%M:%S')}")
                 
-                # Wykonaj jedną rundę scrapingu
+                # Wykonaj jedna runde scrapingu
                 results = self.run_single_round(round_number)
                 
                 if results:
@@ -564,58 +589,58 @@ Airline Filter: {request.airline_filter}
                     total_successful += successful
                     total_failed += failed
                     
-                    self.logger.info(f"✅ Runda {round_number}: {successful} sukces, {failed} błędów")
-                    self.logger.info(f"📊 RAZEM: {total_successful} sukces, {total_failed} błędów")
+                    self.logger.info(f"Runda {round_number}: {successful} sukces, {failed} bledow")
+                    self.logger.info(f"RAZEM: {total_successful} sukces, {total_failed} bledow")
                 else:
-                    self.logger.error(f"❌ Runda {round_number} nieudana")
+                    self.logger.error(f"Runda {round_number} nieudana")
                 
                 round_number += 1
                 
-                # Przerwa między rundami (jeśli nie zatrzymano)
+                # Przerwa miedzy rundami (jesli nie zatrzymano)
                 if not self.stop_rolling:
                     break_range = self.config["scraping_config"].get("rolling_break_minutes", [30, 60])
                     break_minutes = random.uniform(break_range[0], break_range[1])
                     
-                    self.logger.info(f"💤 Przerwa między rundami: {break_minutes:.1f} minut")
-                    self.logger.info(f"⏰ Następna runda około: {(datetime.now() + timedelta(minutes=break_minutes)).strftime('%H:%M:%S')}")
+                    self.logger.info(f"Przerwa miedzy rundami: {break_minutes:.1f} minut")
+                    self.logger.info(f"Nastepna runda okolo: {(datetime.now() + timedelta(minutes=break_minutes)).strftime('%H:%M:%S')}")
                     
-                    # Czekaj w małych kawałkach żeby móc przerwać
+                    # Czekaj w malych kawalach zeby moc przerwac
                     for _ in range(int(break_minutes * 60)):
                         if self.stop_rolling:
                             break
                         time.sleep(1)
             
-            # Podsumowanie końcowe
+            # Podsumowanie koncowe
             total_time = datetime.now() - start_time
             
-            self.logger.info("\n🏁" + "="*60)
-            self.logger.info("🎉 ROLLING MODE ZAKOŃCZONY!")
-            self.logger.info(f"📊 STATYSTYKI KOŃCOWE:")
-            self.logger.info(f"   🔄 Rundy: {round_number - 1}")
-            self.logger.info(f"   ✅ Sukces: {total_successful}")
-            self.logger.info(f"   ❌ Błędy: {total_failed}")
-            self.logger.info(f"   ⏱️ Czas działania: {total_time}")
-            self.logger.info(f"📁 Wszystkie pliki w: {self.session_dir}")
+            self.logger.info("\n" + "="*60)
+            self.logger.info("ROLLING MODE ZAKONCZONY!")
+            self.logger.info(f"STATYSTYKI KONCOWE:")
+            self.logger.info(f"   Rundy: {round_number - 1}")
+            self.logger.info(f"   Sukces: {total_successful}")
+            self.logger.info(f"   Bledy: {total_failed}")
+            self.logger.info(f"   Czas dzialania: {total_time}")
+            self.logger.info(f"Wszystkie pliki w: {self.session_dir}")
             self.logger.info("="*60)
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd rolling mode: {e}")
+            self.logger.error(f"Blad rolling mode: {e}")
     
     def run_single_round(self, round_number: int):
-        """Wykonuje jedną rundę scrapingu"""
+        """Wykonuje jedna runde scrapingu"""
         try:
             # Wczytaj loty z Excel
             flights = self.load_flights_from_excel()
             
             if not flights:
-                self.logger.error("❌ Brak lotów do sprawdzenia!")
+                self.logger.error("Brak lotow do sprawdzenia!")
                 return None
             
             # Generuj zapytania
             requests = self.generate_requests(flights)
             
             if not requests:
-                self.logger.error("❌ Brak zapytań do wykonania!")
+                self.logger.error("Brak zapytan do wykonania!")
                 return None
             
             results = []
@@ -623,22 +648,22 @@ Airline Filter: {request.airline_filter}
             
             for i, request in enumerate(requests, 1):
                 if self.stop_rolling:
-                    self.logger.info("🛑 Zatrzymano podczas rundy")
+                    self.logger.info("Zatrzymano podczas rundy")
                     break
                 
-                self.logger.info(f"🔄 R{round_number} [{i}/{len(requests)}] {request.target.origin_airport}→{request.target.destination_airport} | {request.airline_name}")
+                self.logger.info(f"R{round_number} [{i}/{len(requests)}] {request.target.origin_airport}-{request.target.destination_airport} | {request.airline_name}")
                 
                 # Wykonaj zapytanie
                 result = self.scrape_text_only(request, round_number)
                 results.append(result)
                 
-                # Statystyki na bieżąco (co 10 zapytań)
+                # Statystyki na biezaco (co 10 zapytan)
                 if i % 10 == 0:
                     successful = len([r for r in results if r.success])
                     failed = len([r for r in results if not r.success])
-                    self.logger.info(f"📊 R{round_number} Progress: {successful} ✅ | {failed} ❌ | {len(requests)-i} pozostało")
+                    self.logger.info(f"R{round_number} Progress: {successful} sukces | {failed} bledy | {len(requests)-i} pozostalo")
                 
-                # Opóźnienie między zapytaniami
+                # Opoznienie miedzy zapytaniami
                 if i < len(requests) and not self.stop_rolling:
                     delay = random.uniform(delay_range[0], delay_range[1])
                     time.sleep(delay)
@@ -649,33 +674,33 @@ Airline Filter: {request.airline_filter}
             return results
             
         except Exception as e:
-            self.logger.error(f"❌ Błąd rundy {round_number}: {e}")
+            self.logger.error(f"Blad rundy {round_number}: {e}")
             return None
 
 def main():
-    """Główna funkcja"""
-    print("🛫 Kayak Excel Scraper")
+    """Glowna funkcja"""
+    print("Kayak Excel Scraper")
     print("="*50)
     
     try:
         # Test ChromeDriver
-        print("🧪 Test ChromeDriver...")
+        print("Test ChromeDriver...")
         driver = SimpleDriver.create_driver()
         driver.get("about:blank")
         driver.quit()
-        print("✅ ChromeDriver działa!")
+        print("ChromeDriver dziala!")
         
         # Uruchom scraper
         scraper = KayakExcelScraper()
         results = scraper.run_scraping_session()
         
         if results:
-            print(f"\n🎯 Sesja zakończona! Sprawdź folder: {scraper.session_dir}")
+            print(f"\nSesja zakonczona! Sprawdz folder: {scraper.session_dir}")
         
     except KeyboardInterrupt:
-        print("\n👋 Przerwano przez użytkownika")
+        print("\nPrzerwano przez uzytkownika")
     except Exception as e:
-        print(f"❌ Błąd krytyczny: {e}")
+        print(f"Blad krytyczny: {e}")
 
 if __name__ == "__main__":
     main()

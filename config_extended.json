@@ -1,45 +1,109 @@
 {
-  "_comment_scraping": "Konfiguracja scrapingu lotów",
-  "_comment_route": "origin/destination - kody IATA lotnisk", 
-  "_comment_dates": "earliest_departure - najwcześniejszy dzień wylotu (YYYY-MM-DD)",
-  "_comment_dates2": "latest_return - najpóźniejszy dzień powrotu (YYYY-MM-DD)",
-  "_comment_duration": "min_days/max_days - długość pobytu w dniach",
-  "_comment_passengers": "passengers - liczba pasażerów (1-4)",
-  "_comment_airlines": "selected_airlines - lista kluczy linii lotniczych do sprawdzenia",
-  "_comment_delays": "delay_between_requests - opóźnienie między zapytaniami w sekundach [min, max]",
-  "_comment_rolling": "rolling_mode - true: działa w kółko sprawdzając wszystkie kombinacje w każdej rundzie, false: jedna sesja",
-  "_comment_rolling_break": "rolling_break_minutes - przerwa między rundami w rolling mode [min, max]",
-  
   "scraping_config": {
     "origin": "WAW",
-    "destination": "ICN", 
-    "earliest_departure": "2025-10-05",
+    "destination": "ICN",
+    "earliest_departure": "2025-10-20",
     "latest_return": "2025-11-15",
+    "departure_start": "2025-10-20",
+    "departure_end": "2025-10-25",
+    "return_start": "2025-11-10",
+    "return_end": "2025-11-15",
     "min_days": 19,
     "max_days": 24,
     "passengers": 2,
-    "selected_airlines": ["LOT", "Turkish", "Emirates", "Qatar", "China_Air"],
-    "delay_between_requests": [25, 45],
+    "selected_airlines": [
+      "KLM"
+    ],
+    "delay_between_requests": [
+      30,
+      45
+    ],
     "rolling_mode": false,
-    "rolling_break_minutes": [30, 60]
+    "rolling_break_minutes": [
+      45,
+      90
+    ]
   },
-  
-  "_comment_airlines_filters": "Filtry linii lotniczych dla Kayak - NIE ZMIENIAJ bez wiedzy o URL encoding",
-  "airlines": {
-    "LOT": {"filter": "fs=airlines%3DLO%3Bbfc%3D1", "name": "LOT Polish Airlines"},
-    "Lufthansa": {"filter": "fs=airlines%3DLH%2CMULT%3Bbfc%3D1", "name": "Lufthansa + Multi"},
-    "KLM": {"filter": "fs=airlines%3DKL%2CMULT%3Bbfc%3D1", "name": "KLM + Multi"},
-    "AirFrance": {"filter": "fs=airlines%3DAF%2CMULT%3Bbfc%3D1", "name": "Air France + Multi"},
-    "Swiss": {"filter": "fs=airlines%3DLX%3Bbfc%3D1", "name": "Swiss"},
-    "Austrian": {"filter": "fs=airlines%3DOS%3Bbfc%3D1", "name": "Austrian Airlines"},
-    "Finnair": {"filter": "fs=airlines%3DAY%3Bbfc%3D1", "name": "Finnair"},
-    "SAS": {"filter": "fs=airlines%3DSK%3Bbfc%3D1", "name": "SAS"},
-    "Korean": {"filter": "fs=airlines%3DKE%3Bbfc%3D1", "name": "Korean Air"},
-    "Asiana": {"filter": "fs=airlines%3DOZ%3Bbfc%3D1", "name": "Asiana Airlines"},
-    "China_Air": {"filter": "fs=airlines%3DCA%3Bbfc%3D1", "name": "Air China"},
-    "Turkish": {"filter": "fs=airlines%3DTK%2CMULT%3Bbfc%3D1", "name": "Turkish Airlines + Multi"},
-    "Emirates": {"filter": "fs=airlines%3DEK%3Bbfc%3D1", "name": "Emirates"},
-    "Qatar": {"filter": "fs=airlines%3DQR%3Bbfc%3D1", "name": "Qatar Airways"},
-    "Etihad": {"filter": "fs=airlines%3DEY%3Bbfc%3D1", "name": "Etihad Airways"}
+  "airlines_config": {
+    "LOT": {
+      "filter": "fs=airlines%3DLO%3Bbfc%3D1",
+      "name": "LOT Polish Airlines"
+    },
+    "Lufthansa": {
+      "filter": "fs=airlines%3DLH%2CMULT%3Bbfc%3D1",
+      "name": "Lufthansa + Multi"
+    },
+    "KLM": {
+      "filter": "fs=airlines%3DKL%2CMULT%3Bbfc%3D1",
+      "name": "KLM + Multi"
+    },
+    "Air_France": {
+      "filter": "fs=airlines%3DAF%2CMULT%3Bbfc%3D1",
+      "name": "Air France + Multi"
+    },
+    "Swiss": {
+      "filter": "fs=airlines%3DLX%3Bbfc%3D1",
+      "name": "Swiss"
+    },
+    "Austrian": {
+      "filter": "fs=airlines%3DOS%3Bbfc%3D1",
+      "name": "Austrian Airlines"
+    },
+    "Finnair": {
+      "filter": "fs=airlines%3DAY%3Bbfc%3D1",
+      "name": "Finnair"
+    },
+    "SAS": {
+      "filter": "fs=airlines%3DSK%3Bbfc%3D1",
+      "name": "SAS"
+    },
+    "Korean_Air": {
+      "filter": "fs=airlines%3DKE%3Bbfc%3D1",
+      "name": "Korean Air"
+    },
+    "All_Nippon": {
+      "filter": "fs=airlines%3DNH%3Bbfc%3D1",
+      "name": "All Nippon Airways"
+    },
+    "Singapore": {
+      "filter": "fs=airlines%3DSQ%3Bbfc%3D1",
+      "name": "Singapore Airlines"
+    },
+    "Cathay_Pacific": {
+      "filter": "fs=airlines%3DCX%3Bbfc%3D1",
+      "name": "Cathay Pacific"
+    },
+    "Asiana": {
+      "filter": "fs=airlines%3DOZ%3Bbfc%3D1",
+      "name": "Asiana Airlines"
+    },
+    "Air_China": {
+      "filter": "fs=airlines%3DCA%3Bbfc%3D1",
+      "name": "Air China"
+    },
+    "China_Air": {
+      "filter": "fs=airlines%3DCA%3Bbfc%3D1",
+      "name": "Air China"
+    },
+    "Turkish": {
+      "filter": "fs=airlines%3DTK%2CMULT%3Bbfc%3D1",
+      "name": "Turkish Airlines + Multi"
+    },
+    "Emirates": {
+      "filter": "fs=airlines%3DEK%3Bbfc%3D1",
+      "name": "Emirates"
+    },
+    "Qatar": {
+      "filter": "fs=airlines%3DQR%3Bbfc%3D1",
+      "name": "Qatar Airways"
+    },
+    "Etihad": {
+      "filter": "fs=airlines%3DEY%3Bbfc%3D1",
+      "name": "Etihad Airways"
+    },
+    "British_Airways": {
+      "filter": "fs=airlines%3DBA%3Bbfc%3D1",
+      "name": "British Airways"
+    }
   }
 }
