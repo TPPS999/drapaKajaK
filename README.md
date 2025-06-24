@@ -63,8 +63,8 @@ plyer>=2.1.0  # powiadomienia
 ### 1. Automatyczna instalacja (zalecane)
 ```bash
 # Klonowanie projektu
-git clone [url-repo]
-cd kayak-flight-scraper
+git clone https://github.com/TPPS999/drapaKajaK.git
+cd drapaKajaK
 
 # Automatyczny setup - robi wszystko!
 setup_and_run.bat     # Windows
