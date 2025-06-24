@@ -79,15 +79,15 @@ sudo apt install google-chrome-stable
 
 #### Opcja A: Git clone (zalecane)
 ```bash
-git clone [URL-REPOZYTORIUM]
-cd kayak-flight-scraper
+git clone https://github.com/TPPS999/drapaKajaK.git
+cd drapaKajaK
 ```
 
 #### Opcja B: Pobierz ZIP
 ```bash
 # Pobierz ZIP z GitHub
-# Rozpakuj do katalogu kayak-flight-scraper
-cd kayak-flight-scraper
+# Rozpakuj do katalogu drapaKajaK
+cd drapaKajaK
 ```
 
 ### Krok 4: Tworzenie środowiska wirtualnego (zalecane)
