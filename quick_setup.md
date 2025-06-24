@@ -7,8 +7,8 @@ Jeden skrypt robi wszystko - od instalacji do pierwszego scrapingu!
 ### Windows
 ```bash
 # 1. Pobierz projekt
-git clone [URL-REPO]
-cd kayak-flight-scraper
+git clone https://github.com/TPPS999/drapaKajaK.git
+cd drapaKajaK
 
 # 2. Uruchom automatyczną instalację i setup
 setup_and_run.bat
@@ -19,8 +19,8 @@ setup_and_run.bat
 ### Linux/macOS  
 ```bash
 # 1. Pobierz projekt
-git clone [URL-REPO]
-cd kayak-flight-scraper
+git clone https://github.com/TPPS999/drapaKajaK.git
+cd drapaKajaK
 
 # 2. Uruchom automatyczną instalację i setup
 chmod +x setup_and_run.sh
