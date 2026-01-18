@@ -89,8 +89,8 @@ class SimpleDriver:
 class KayakExcelScraper:
     """Scraper dla listy lotow z Excel"""
     
-    def __init__(self, flights_file: str = "flights_list.xlsx", config_file: str = "excel_config.json", 
-                 output_dir: str = "kayak_excel_data", rolling_mode: bool = False):
+    def __init__(self, flights_file: str = "data/flights_list.xlsx", config_file: str = "config/excel_config.json", 
+                 output_dir: str = "output/kayak_excel_data", rolling_mode: bool = False):
         self.flights_file = flights_file
         self.config_file = config_file
         self.output_dir = output_dir

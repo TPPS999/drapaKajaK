@@ -708,7 +708,7 @@ def main():
         print()
         
         # Pokaz dostepne foldery
-        base_dir = Path("kayak_text_data")
+        base_dir = Path("output/kayak_text_data")
         if base_dir.exists():
             sessions = [d for d in base_dir.iterdir() if d.is_dir() and d.name.startswith('txt_session_')]
             if sessions:
@@ -718,7 +718,7 @@ def main():
                     print(f"  {session.name} ({txt_count} plikow)")
         
         # Sprawdź też excel_session
-        excel_base_dir = Path("kayak_excel_data")
+        excel_base_dir = Path("output/kayak_excel_data")
         if excel_base_dir.exists():
             excel_sessions = [d for d in excel_base_dir.iterdir() if d.is_dir() and d.name.startswith('excel_session_')]
             if excel_sessions:

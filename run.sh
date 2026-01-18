@@ -34,8 +34,8 @@ if [ ! -f "$VENV_PYTHON" ]; then
     fi
 
     # Create venv
-    echo -e "${BLUE}+ Running setup_venv.py...${NC}"
-    python3 setup_venv.py
+    echo -e "${BLUE}+ Running scripts/setup_venv.py...${NC}"
+    python3 scripts/setup_venv.py
 
     if [ $? -ne 0 ]; then
         echo ""
@@ -62,7 +62,7 @@ if [ -z "$1" ]; then
     echo ""
     echo -e "${YELLOW}No arguments provided - launching GUI by default...${NC}"
     echo ""
-    "$VENV_PYTHON" FlightTool_Simple.py
+    "$VENV_PYTHON" src/FlightTool_Simple.py
     exit 0
 fi
 
@@ -71,32 +71,32 @@ case "$1" in
     test)
         echo -e "${BLUE}+ Running system tests...${NC}"
         echo ""
-        "$VENV_PYTHON" test_system.py
+        "$VENV_PYTHON" src/test_system.py
         ;;
     gui)
         echo -e "${BLUE}+ Launching Flight Tool GUI...${NC}"
         echo ""
-        "$VENV_PYTHON" FlightTool_Simple.py
+        "$VENV_PYTHON" src/FlightTool_Simple.py
         ;;
     scraper)
         echo -e "${BLUE}+ Running extended scraper...${NC}"
         echo ""
-        "$VENV_PYTHON" scrap_only_extended.py
+        "$VENV_PYTHON" src/scrap_only_extended.py
         ;;
     excel)
         echo -e "${BLUE}+ Running Excel scraper...${NC}"
         echo ""
-        "$VENV_PYTHON" kayak_excel_scraper.py
+        "$VENV_PYTHON" src/kayak_excel_scraper.py
         ;;
     extractor)
         echo -e "${BLUE}+ Running data extractor...${NC}"
         echo ""
         if [ -z "$2" ]; then
             echo -e "${RED}ERROR: Please provide folder path${NC}"
-            echo "Example: ./run.sh extractor kayak_text_data/txt_session_20250118"
+            echo "Example: ./run.sh extractor output/kayak_text_data/txt_session_20250118"
             exit 1
         fi
-        "$VENV_PYTHON" simple_kayak_extractor.py "$2"
+        "$VENV_PYTHON" src/simple_kayak_extractor.py "$2"
         ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"

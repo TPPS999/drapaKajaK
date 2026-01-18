@@ -11,14 +11,11 @@ __pycache__/
 *.so
 .Python
 
-# Data folders
-kayak_text_data/
-kayak_excel_data/
-kayak_json_data/
+# Output folder (for scraped data)
+output/
 
-# Output files
+# Data files (input data is tracked in data/ folder)
 kayak_offers_*.xlsx
-flights_list.xlsx
 
 # IDE
 .vscode/

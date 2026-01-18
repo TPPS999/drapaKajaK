@@ -85,7 +85,7 @@ class SimpleDriver:
 class KayakTextScraper:
     """ULTRA-PROSTY scraper - tylko tekst"""
 
-    def __init__(self, config_path: str = "config_extended.json", output_dir: str = "kayak_text_data"):
+    def __init__(self, config_path: str = "config/config_extended.json", output_dir: str = "output/kayak_text_data"):
         self.output_dir = output_dir
         self.session_dir = None
         self.logger = self._setup_logger()
@@ -233,7 +233,7 @@ class KayakTextScraper:
         
         # Zapisz zaktualizowaną konfigurację
         try:
-            with open("config_extended.json", 'w', encoding='utf-8') as f:
+            with open("config/config_extended.json", 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, indent=2, ensure_ascii=False)
             self.logger.info("Dodano brakujaca sekcje airlines_config do konfiguracji")
         except Exception as e:

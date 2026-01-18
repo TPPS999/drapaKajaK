@@ -430,7 +430,7 @@ class FlightToolSimple:
                 }
             }
             
-            with open("config_extended.json", "w", encoding="utf-8") as f:
+            with open("config/config_extended.json", "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=2, ensure_ascii=False)
             
             self.extended_log.insert(tk.END, "OK Configuration saved to config_extended.json\n")
@@ -552,7 +552,7 @@ class FlightToolSimple:
                 title="Save sample Excel file",
                 defaultextension=".xlsx",
                 filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
-                initialvalue="flights_list.xlsx"
+                initialvalue="data/flights_list.xlsx"
             )
             
             if filename:

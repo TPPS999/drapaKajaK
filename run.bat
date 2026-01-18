@@ -34,8 +34,8 @@ if not exist "%VENV_DIR%\Scripts\python.exe" (
     )
 
     REM Create venv
-    echo [96m+ Running setup_venv.py...[0m
-    python setup_venv.py
+    echo [96m+ Running scripts/setup_venv.py...[0m
+    python scripts\setup_venv.py
 
     if errorlevel 1 (
         echo.
@@ -63,7 +63,7 @@ if "%1"=="" (
     echo.
     echo [93mNo arguments provided - launching GUI by default...[0m
     echo.
-    "%VENV_PYTHON%" FlightTool_Simple.py
+    "%VENV_PYTHON%" src\FlightTool_Simple.py
     goto :end
 )
 
@@ -71,28 +71,28 @@ REM Route to appropriate tool
 if /i "%1"=="test" (
     echo [96m+ Running system tests...[0m
     echo.
-    "%VENV_PYTHON%" test_system.py
+    "%VENV_PYTHON%" src\test_system.py
     goto :end
 )
 
 if /i "%1"=="gui" (
     echo [96m+ Launching Flight Tool GUI...[0m
     echo.
-    "%VENV_PYTHON%" FlightTool_Simple.py
+    "%VENV_PYTHON%" src\FlightTool_Simple.py
     goto :end
 )
 
 if /i "%1"=="scraper" (
     echo [96m+ Running extended scraper...[0m
     echo.
-    "%VENV_PYTHON%" scrap_only_extended.py
+    "%VENV_PYTHON%" src\scrap_only_extended.py
     goto :end
 )
 
 if /i "%1"=="excel" (
     echo [96m+ Running Excel scraper...[0m
     echo.
-    "%VENV_PYTHON%" kayak_excel_scraper.py
+    "%VENV_PYTHON%" src\kayak_excel_scraper.py
     goto :end
 )
 
@@ -101,11 +101,11 @@ if /i "%1"=="extractor" (
     echo.
     if "%2"=="" (
         echo [91mERROR: Please provide folder path[0m
-        echo Example: run.bat extractor kayak_text_data\txt_session_20250118
+        echo Example: run.bat extractor output\kayak_text_data\txt_session_20250118
         pause
         exit /b 1
     )
-    "%VENV_PYTHON%" simple_kayak_extractor.py %2
+    "%VENV_PYTHON%" src\simple_kayak_extractor.py %2
     goto :end
 )
 

@@ -109,17 +109,21 @@ def test_chromedriver():
 def test_project_files():
     """Test project files"""
     print_header("TESTING PROJECT FILES")
-    
+
+    # Get the directory where this script is located (src/)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     required_files = [
         'scrap_only_extended.py',
-        'kayak_excel_scraper.py', 
+        'kayak_excel_scraper.py',
         'simple_kayak_extractor.py'
     ]
-    
+
     all_present = True
-    
+
     for filename in required_files:
-        if os.path.exists(filename):
+        filepath = os.path.join(script_dir, filename)
+        if os.path.exists(filepath):
             print(f"  ✓ {filename}")
         else:
             print(f"  ✗ {filename} - MISSING")
