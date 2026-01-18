@@ -23,20 +23,43 @@ cd drapaKajaK
 - **macOS:** `brew install git` lub https://git-scm.com/download/mac
 - **Linux:** `sudo apt install git` (Ubuntu/Debian)
 
-### 🚀 Uruchom setup i GUI:
+### 🚀 Ultra-prosty start - NOWY SPOSÓB! ⚡
 
-#### Windows
+#### Windows - Jedno kliknięcie!
 ```bash
-setup_and_run.bat
+# Automatycznie sprawdza/tworzy venv i uruchamia:
+run.bat              # Uruchom GUI (domyślnie)
+run.bat test         # Test systemu
+run.bat scraper      # Extended scraper
+run.bat excel        # Excel scraper
+run.bat gui          # GUI (jawnie)
+
+# Lub stare skrypty (też z auto-venv):
+run_test.bat         # Test systemu
+run_scraper.bat      # Extended scraper
 ```
 
-#### Linux/macOS
+#### Linux/macOS - Jedno polecenie!
 ```bash
-chmod +x setup_and_run.sh
-./setup_and_run.sh
+# Nadaj uprawnienia (jednorazowo):
+chmod +x run.sh run_test.sh run_scraper.sh
+
+# Automatycznie sprawdza/tworzy venv i uruchamia:
+./run.sh             # Uruchom GUI (domyślnie)
+./run.sh test        # Test systemu
+./run.sh scraper     # Extended scraper
+./run.sh excel       # Excel scraper
+./run.sh gui         # GUI (jawnie)
+
+# Lub stare skrypty (też z auto-venv):
+./run_test.sh        # Test systemu
+./run_scraper.sh     # Extended scraper
 ```
 
-**To wszystko!** GUI otworzy się automatycznie i możesz od razu rozpocząć scraping! 🎉
+**To wszystko!**
+- ✅ **Pierwsze uruchomienie** - automatycznie tworzy venv
+- ✅ **Kolejne uruchomienia** - używa istniejącego venv
+- ✅ **Zero konfiguracji** - działa od razu! 🎉
 
 ---
 
@@ -94,8 +117,13 @@ Po uruchomieniu `setup_and_run.bat` automatycznie otwiera się **Flight Tool** -
 ```bash
 git clone https://github.com/TPPS999/drapaKajaK.git
 cd drapaKajaK
-setup_and_run.bat  # Windows
-./setup_and_run.sh # Linux/macOS
+
+# Utwórz środowisko wirtualne (venv)
+python setup_venv.py
+
+# Aktywuj venv
+activate_venv.bat         # Windows
+source activate_venv.sh   # Linux/macOS
 ```
 
 ### 2. **Test systemu** (zalecane)
@@ -126,15 +154,21 @@ setup_and_run.bat  # Windows
 
 ## 🔧 Wymagania
 
-### Automatycznie instalowane przez setup_and_run.bat:
-- **Python 3.8+** (sprawdzane automatycznie)
-- **Google Chrome** (musi być zainstalowany ręcznie)
-- **Wszystkie biblioteki Python** (selenium, pandas, openpyxl, itp.)
-- **ChromeDriver** (pobierany automatycznie)
+### Automatycznie instalowane przez setup_venv.py:
+- ✅ **Środowisko wirtualne (venv)** - izolowane od systemu
+- ✅ **Wszystkie biblioteki Python** - selenium, pandas, openpyxl, webdriver-manager, requests, beautifulsoup4
+- ✅ **ChromeDriver** - pobierany automatycznie przy pierwszym uruchomieniu
+- ✅ **Skrypty pomocnicze** - activate_venv.bat/sh, run_test.bat/sh, run_scraper.bat/sh
 
-### Jedyne co musisz zrobić ręcznie:
-- Zainstalować **Google Chrome** z [chrome.google.com](https://chrome.google.com)
-- Mieć **Python 3.8+** z [python.org](https://python.org)
+### Wymagania systemowe (musisz zainstalować ręcznie):
+- **Python 3.7+** z [python.org](https://python.org) - upewnij się, że jest w PATH
+- **Google Chrome** z [chrome.google.com](https://chrome.google.com)
+
+### Zalety środowiska wirtualnego (venv):
+- 🔒 **Izolacja** - nie psuje systemowego Pythona
+- 🧹 **Czystość** - łatwe usunięcie (usuń folder venv/)
+- 🔧 **Portable** - działa tak samo na Windows/Linux/macOS
+- ⚡ **Fix Unicode** - automatycznie obsługuje polskie znaki (Windows)
 
 **Reszta dzieje się automatycznie!** 🚀
 
@@ -196,35 +230,71 @@ Extended Scraper → zaznacz 1 linię → krótki test
 
 ## 🛠️ Rozwiązywanie problemów
 
-### GUI nie otwiera się
+### 1. GUI nie otwiera się
 ```bash
-# Ręczne uruchomienie:
+# Windows:
+activate_venv.bat
 python FlightTool_Simple.py
 
-# Jeśli błąd - sprawdź komponenty:
-python setup_components.py
+# Linux/macOS:
+source activate_venv.sh
+python FlightTool_Simple.py
+
+# LUB użyj gotowego skryptu (bez aktywacji):
+run_test.bat         # Windows
+./run_test.sh        # Linux/macOS
 ```
 
-### "Python nie znaleziony"
-- Zainstaluj Python 3.8+ z [python.org](https://python.org)
+### 2. "Python nie znaleziony"
+- Zainstaluj Python 3.7+ z [python.org](https://python.org)
 - **Windows:** Zaznacz "Add to PATH" podczas instalacji
+- Sprawdź: `python --version`
 
-### "Chrome nie znaleziony"
+### 3. "Chrome nie znaleziony"
 - Zainstaluj Google Chrome z [chrome.google.com](https://chrome.google.com)
 
-### Test ChromeDriver nie przechodzi
-```
-GUI → Test → Full System Test
-(sprawdź co jest czerwone)
-Menu → Tools → Reinstall Components
+### 4. Błędy kodowania Unicode (Windows)
+- **Naprawione!** test_system.py automatycznie obsługuje UTF-8
+- Jeśli nadal problem: `chcp 65001` przed uruchomieniem
+
+### 5. Venv nie działa
+```bash
+# Usuń i utwórz ponownie:
+# Windows:
+rmdir /s venv
+python setup_venv.py
+
+# Linux/macOS:
+rm -rf venv
+python3 setup_venv.py
 ```
 
-### Brak wyników w scrapingu
+### 6. Brak modułów po aktywacji venv
+```bash
+# Sprawdź czy używasz właściwego Pythona:
+which python        # Linux/macOS
+where python        # Windows
+
+# Powinno pokazać ścieżkę do venv/Scripts/python.exe (Windows)
+# lub venv/bin/python (Linux/macOS)
+```
+
+### 7. Test ChromeDriver nie przechodzi
+```bash
+# Uruchom test z venv:
+run_test.bat         # Windows
+./run_test.sh        # Linux/macOS
+
+# Lub ręcznie:
+activate_venv.bat && python test_system.py
+```
+
+### 8. Brak wyników w scrapingu
 - Zwiększ opóźnienia: 40-60s między zapytaniami
 - Sprawdź czy Kayak nie blokuje (spróbuj za kilka godzin)
 - Użyj mniejszej liczby linii lotniczych
 
-### Błędy w Data Extractor
+### 9. Błędy w Data Extractor
 ```
 GUI → Data Extractor → Preview Data
 (sprawdź czy pliki .txt zawierają ceny)
@@ -234,18 +304,24 @@ GUI → Data Extractor → Preview Data
 
 ```
 drapaKajaK/
+├── 🌐 venv/                         # Środowisko wirtualne Python
+├──
+├── ⚡ run.bat/sh                     # GŁÓWNY LAUNCHER (auto-venv) ⭐ NOWY!
+├── ⚙️ setup_venv.py                 # Tworzenie środowiska wirtualnego
+├── 🚀 activate_venv.bat/sh          # Aktywacja venv (opcjonalne)
+├── ▶️ run_test.bat/sh               # Uruchom testy (auto-venv)
+├── ▶️ run_scraper.bat/sh            # Uruchom scraper (auto-venv)
+├──
 ├── 🖥️ FlightTool_Simple.py          # GŁÓWNE GUI
-├── ⚙️ setup_and_run.bat             # Automatyczna instalacja
-├── 🧪 setup_components.py           # Instalator komponentów
-├── 🔧 test_system.py                # Tester systemu
-├── 
+├── 🔧 test_system.py                # Tester systemu (Unicode fix)
+├──
 ├── 🔄 scrap_only_extended.py        # Extended scraper (używany przez GUI)
-├── 📋 kayak_excel_scraper.py        # Excel scraper (używany przez GUI)  
+├── 📋 kayak_excel_scraper.py        # Excel scraper (używany przez GUI)
 ├── 📊 simple_kayak_extractor.py     # Data extractor (używany przez GUI)
-├── 
+├──
 ├── ⚙️ config_extended.json          # Konfiguracja (generowana przez GUI)
 ├── 📄 flights_list.xlsx             # Przykładowe loty (tworzony przez GUI)
-├── 
+├──
 ├── 📁 kayak_text_data/              # Wyniki Extended mode
 ├── 📁 kayak_excel_data/             # Wyniki Excel mode
 └── 📊 kayak_offers_[timestamp].xlsx # Analiza Excel (generowany przez GUI)
@@ -279,27 +355,50 @@ drapaKajaK/
 
 ## 🎯 Porównanie: Stara vs Nowa metoda
 
-### ❌ Stara metoda (manualna):
+### ❌ Stara metoda (instalacja globalna):
 ```bash
-# Edytować config_extended.json ręcznie
+# Instalacja na systemowym Pythonie (niebezpieczne):
+pip install selenium webdriver-manager requests pandas...
+# Może konfliktować z innymi projektami
+# Problemy z Unicode na Windows
 python scrap_only_extended.py
 # Pamiętać komendy i ścieżki
 python simple_kayak_extractor.py kayak_text_data/session_folder
-# Długie nazwy folderów z timestampami
 ```
 
-### ✅ Nowa metoda (GUI):
+### ✅ Nowa metoda (auto-venv + GUI):
 ```bash
-setup_and_run.bat  # Jeden raz
-# GUI się otwiera
-# Klik, klik, klik → gotowe!
+# NAJŁATWIEJ - run.bat/sh (auto-venv!):
+run.bat              # Windows - GUI
+./run.sh             # Linux/macOS - GUI
+run.bat test         # Test systemu
+./run.sh scraper     # Extended scraper
+
+# Lub ręcznie (jeśli wolisz):
+python setup_venv.py         # Raz - tworzy venv
+activate_venv.bat            # Windows - aktywuj
+python FlightTool_Simple.py  # Uruchom
 ```
+
+## 🌟 Zalety nowego podejścia:
+
+✅ **Auto-venv** - `run.bat` automatycznie tworzy i używa venv!
+✅ **Zero konfiguracji** - działaa od razu, bez instalacji ręcznej
+✅ **Venv izoluje pakiety** - nie psuje systemowego Pythona
+✅ **Łatwe usuwanie** - usuń folder `venv/` i gotowe
+✅ **Portable** - działa tak samo na Windows/Linux/macOS
+✅ **Fix Unicode** - automatycznie obsługuje polskie znaki (Windows)
+✅ **Bezpieczne** - każdy projekt ma swoje pakiety
 
 ---
 
-**Projekt**: drapaKajaK - Flight Price Scraper  
-**Typ**: GUI-first aplikacja scrapingu lotów  
-**Status**: Aktywnie rozwijany  
-**Główny interfejs**: FlightTool_Simple.py (uruchamiany przez setup_and_run.bat)  
+**Projekt**: drapaKajaK - Flight Price Scraper
+**Typ**: GUI-first aplikacja scrapingu lotów z auto-venv
+**Status**: Aktywnie rozwijany
+**Główny interfejs**: FlightTool_Simple.py
+**Quick Start**: `run.bat` (Windows) lub `./run.sh` (Linux/macOS)
 
-**💡 Tip**: Po pierwszej instalacji wystarczy `python FlightTool_Simple.py` - wszystkie ustawienia są zachowane!
+**💡 Tip 1**: Użyj `run.bat` - automatycznie sprawdza i tworzy venv!
+**💡 Tip 2**: GUI automatycznie zapisuje konfigurację
+**💡 Tip 3**: Wszystkie skrypty mają auto-venv - `run_test.bat`, `run_scraper.bat`
+**💡 Tip 4**: Możesz mieć wiele venv dla różnych projektów bez konfliktów!

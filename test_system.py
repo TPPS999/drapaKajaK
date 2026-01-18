@@ -9,6 +9,13 @@ import sys
 import os
 import importlib
 
+# Fix Windows console encoding issues
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+
 def print_header(text):
     """Print formatted header"""
     print("\n" + "="*50)

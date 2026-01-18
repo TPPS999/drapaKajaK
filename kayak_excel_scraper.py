@@ -20,7 +20,9 @@ import logging
 # Selenium imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
 @dataclass
 class FlightTarget:
@@ -79,8 +81,10 @@ class SimpleDriver:
         ]
         
         options.add_argument(f"--user-agent={random.choice(user_agents)}")
-        
-        return webdriver.Chrome(options=options)
+
+        # Use webdriver-manager to get correct ChromeDriver
+        service = Service(ChromeDriverManager().install())
+        return webdriver.Chrome(service=service, options=options)
 
 class KayakExcelScraper:
     """Scraper dla listy lotow z Excel"""

@@ -8,23 +8,39 @@
 git clone https://github.com/TPPS999/drapaKajaK.git
 cd drapaKajaK
 
-# 2. Uruchom automatyczną instalację i GUI
-setup_and_run.bat
+# 2. Utwórz środowisko wirtualne (venv)
+python setup_venv.py
 
-# 3. Gotowe! GUI się otworzy automatycznie 🎉
+# 3. Aktywuj środowisko wirtualne
+activate_venv.bat
+
+# 4. Uruchom GUI
+python FlightTool_Simple.py
+
+# LUB użyj gotowych skryptów (nie wymaga aktywacji venv):
+run_test.bat          # Test systemu
+run_scraper.bat       # Scraper
 ```
 
-### Linux/macOS  
+### Linux/macOS
 ```bash
 # 1. Pobierz projekt
 git clone https://github.com/TPPS999/drapaKajaK.git
 cd drapaKajaK
 
-# 2. Uruchom automatyczną instalację i GUI
-chmod +x setup_and_run.sh
-./setup_and_run.sh
+# 2. Utwórz środowisko wirtualne (venv)
+python3 setup_venv.py
 
-# 3. Gotowe! GUI się otworzy automatycznie 🎉
+# 3. Aktywuj środowisko wirtualne
+source activate_venv.sh
+# lub: source venv/bin/activate
+
+# 4. Uruchom GUI
+python FlightTool_Simple.py
+
+# LUB użyj gotowych skryptów (nie wymaga aktywacji venv):
+./run_test.sh         # Test systemu
+./run_scraper.sh      # Scraper
 ```
 
 ## 🖥️ Interfejs GUI - Flight Tool
@@ -91,21 +107,33 @@ Po uruchomieniu `setup_and_run.bat` automatycznie otwiera się **Flight Tool** z
 
 ## 🔧 Co robi automatyczny setup?
 
-### ✅ setup_and_run.bat automatycznie:
-1. **Sprawdza Python** - czy zainstalowany
-2. **Instaluje komponenty** - wszystkie potrzebne biblioteki
-3. **Testuje ChromeDriver** - pobiera i konfiguruje
-4. **Uruchamia GUI** - otwiera FlightTool_Simple.py
-5. **Wszystko gotowe!** - możesz od razu scrapować
+### ✅ setup_venv.py automatycznie:
+1. **Sprawdza Python** - weryfikuje wersję (3.7+)
+2. **Tworzy venv** - izolowane środowisko Python
+3. **Instaluje komponenty** - wszystkie biblioteki w venv
+4. **Tworzy skrypty** - activate_venv.bat/sh, run_test.bat/sh
+5. **Wszystko gotowe!** - możesz od razu używać narzędzi
+
+### ✅ Zalety środowiska wirtualnego (venv):
+- **Izolacja** - nie zmienia systemowego Pythona
+- **Bezpieczeństwo** - każdy projekt ma swoje pakiety
+- **Łatwość** - łatwe usunięcie (usuń folder venv)
+- **Przenośność** - działa na każdym systemie
 
 ## 📁 Co otrzymujesz po setup?
 
 ```
 drapaKajaK/
+├── ✅ venv/                          # Środowisko wirtualne
+├── ✅ setup_venv.py                  # Tworzenie venv
+├── ✅ activate_venv.bat/sh           # Aktywacja venv
+├── ✅ run_test.bat/sh                # Uruchom testy
+├── ✅ run_scraper.bat/sh             # Uruchom scraper
 ├── ✅ FlightTool_Simple.py           # Główne GUI
 ├── ✅ scrap_only_extended.py         # Extended scraper
-├── ✅ kayak_excel_scraper.py         # Excel scraper  
+├── ✅ kayak_excel_scraper.py         # Excel scraper
 ├── ✅ simple_kayak_extractor.py      # Data extractor
+├── ✅ test_system.py                 # Testy systemowe
 ├── ✅ config_extended.json           # Konfiguracja
 ├── ✅ flights_list.xlsx              # Przykładowe loty
 ├── ✅ kayak_text_data/               # Wyniki Extended
@@ -140,30 +168,55 @@ Zakładka "Data Extractor":
 - Otwiera się Excel z najlepszymi ofertami!
 ```
 
-## ❌ Troubleshooting GUI
+## ❌ Troubleshooting
 
-### GUI nie otwiera się:
+### 1. GUI nie otwiera się:
 ```bash
-# Ręczne uruchomienie:
+# Windows:
+activate_venv.bat
 python FlightTool_Simple.py
 
-# Jeśli błąd - sprawdź komponenty:
-python setup_components.py
-python test_system.py
+# Linux/macOS:
+source activate_venv.sh
+python FlightTool_Simple.py
+
+# LUB sprawdź testy:
+run_test.bat         # Windows
+./run_test.sh        # Linux/macOS
 ```
 
-### "Python nie znaleziony":
-- Zainstaluj Python 3.8+ z [python.org](https://python.org)
+### 2. "Python nie znaleziony":
+- Zainstaluj Python 3.7+ z [python.org](https://python.org)
 - Windows: Zaznacz "Add to PATH" podczas instalacji
+- Sprawdź: `python --version`
 
-### "Chrome nie znaleziony":  
+### 3. "Chrome nie znaleziony":
 - Zainstaluj Google Chrome z [chrome.google.com](https://chrome.google.com)
 
-### Test nie przechodzi:
+### 4. Błędy kodowania Unicode (Windows):
+- **Naprawione!** test_system.py automatycznie obsługuje UTF-8
+- Jeśli nadal problem: użyj `chcp 65001` przed uruchomieniem
+
+### 5. Venv nie działa:
+```bash
+# Usuń i utwórz ponownie:
+# Windows:
+rmdir /s venv
+python setup_venv.py
+
+# Linux/macOS:
+rm -rf venv
+python3 setup_venv.py
 ```
-1. Zakładka "Test" → "Full System Test"
-2. Sprawdź co jest czerwone
-3. Menu → "Tools" → "Reinstall Components"
+
+### 6. Brak modułów po aktywacji venv:
+```bash
+# Sprawdź czy używasz właściwego Pythona:
+which python        # Linux/macOS
+where python        # Windows
+
+# Powinno pokazać ścieżkę do venv/Scripts/python.exe (Windows)
+# lub venv/bin/python (Linux/macOS)
 ```
 
 ## 🎉 Zalety nowej wersji GUI:
@@ -177,21 +230,38 @@ python test_system.py
 
 ## 🚀 Stara vs Nowa metoda:
 
-### ❌ Stara metoda (manualna):
+### ❌ Stara metoda (bezpośrednio na systemie):
 ```bash
-# Trzeba było pamiętać wszystkie komendy:
+# Instalacja globalna (ryzykowna):
+pip install selenium webdriver-manager requests...
+# Może konfliktować z innymi projektami
 python scrap_only_extended.py
-# Edytować config_extended.json ręcznie
-python simple_kayak_extractor.py kayak_text_data/session_folder
 ```
 
-### ✅ Nowa metoda (GUI):
+### ✅ Nowa metoda (venv + GUI):
+```bash
+# Raz:
+python setup_venv.py
+
+# Zawsze:
+activate_venv.bat         # Windows
+source activate_venv.sh   # Linux/macOS
+python FlightTool_Simple.py
+
+# LUB bez aktywacji:
+run_test.bat / run_scraper.bat
 ```
-1. setup_and_run.bat
-2. Klik, klik, klik w GUI
-3. Gotowe!
-```
+
+## 🌟 Zalety nowego podejścia:
+
+✅ **Venv izoluje pakiety** - nie psuje systemowego Pythona
+✅ **Łatwe usuwanie** - usuń folder `venv/` i gotowe
+✅ **Portable** - działa wszędzie tak samo
+✅ **Fix Unicode** - automatycznie obsługuje polskie znaki
+✅ **Gotowe skrypty** - run_test.bat, run_scraper.bat
 
 ---
 
-**💡 Tip**: GUI automatycznie zapisuje konfigurację, więc następnym razem wystarczy `python FlightTool_Simple.py` i twoje ustawienia będą zachowane!
+**💡 Tip 1**: Nie musisz aktywować venv - użyj `run_*.bat` skryptów!
+**💡 Tip 2**: GUI automatycznie zapisuje konfigurację w config_extended.json
+**💡 Tip 3**: Możesz mieć wiele venv dla różnych projektów bez konfliktów!
