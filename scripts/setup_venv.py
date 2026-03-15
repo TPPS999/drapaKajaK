@@ -91,26 +91,27 @@ def upgrade_pip(venv_path):
 
 
 def install_requirements(venv_path):
-    """Install required packages in virtual environment"""
+    """Install required packages from requirements.txt"""
     pip_path = get_venv_pip(venv_path)
 
-    packages = [
-        'selenium',
-        'webdriver-manager',
-        'requests',
-        'beautifulsoup4',
-        'pandas',
-        'openpyxl'
-    ]
+    req_file = "requirements.txt"
+    if not os.path.exists(req_file):
+        print(f"WARNING: {req_file} not found, installing base packages only")
+        packages = ["selenium", "webdriver-manager", "pandas", "openpyxl",
+                    "requests", "beautifulsoup4", "plyer", "colorama"]
+        try:
+            subprocess.run([pip_path, "install"] + packages, check=True)
+            print("\nAll packages installed successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            print(f"\nERROR installing packages: {e}")
+            return False
 
-    print("Installing required packages:")
-    for package in packages:
-        print(f"  - {package}")
-
+    print(f"Installing packages from {req_file}...")
     try:
         subprocess.run(
-            [pip_path, 'install'] + packages,
-            check=True
+            [pip_path, "install", "-r", req_file],
+            check=True,
         )
         print("\nAll packages installed successfully")
         return True

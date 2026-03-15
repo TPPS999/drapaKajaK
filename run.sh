@@ -59,6 +59,8 @@ if [ -z "$1" ]; then
     echo "  ./run.sh scraper       - Run extended scraper"
     echo "  ./run.sh excel         - Run Excel scraper"
     echo "  ./run.sh extractor     - Run data extractor"
+    echo "  ./run.sh watcher       - Run URL Watcher (rolling)"
+    echo "  ./run.sh watcher-once  - Run URL Watcher (jednorazowo)"
     echo ""
     echo -e "${YELLOW}No arguments provided - launching GUI by default...${NC}"
     echo ""
@@ -97,6 +99,16 @@ case "$1" in
             exit 1
         fi
         "$VENV_PYTHON" src/simple_kayak_extractor.py "$2"
+        ;;
+    watcher)
+        echo -e "${BLUE}+ Running URL Watcher (rolling)...${NC}"
+        echo ""
+        "$VENV_PYTHON" src/url_watcher.py
+        ;;
+    watcher-once)
+        echo -e "${BLUE}+ Running URL Watcher (jednorazowo)...${NC}"
+        echo ""
+        "$VENV_PYTHON" src/url_watcher.py --once
         ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"

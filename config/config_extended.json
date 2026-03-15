@@ -1,36 +1,22 @@
 {
   "scraping_config": {
     "origin": "WAW",
-    "destination": "ICN",
-    "earliest_departure": "2026-10-20",
-    "latest_return": "2026-11-15",
-    "departure_start": "2026-10-20",
-    "departure_end": "2026-10-25",
+    "destination": "AKL",
+    "earliest_departure": "2026-10-24",
+    "latest_return": "2026-11-22",
+    "departure_start": "2026-10-24",
+    "departure_end": "2026-10-30",
     "return_start": "2026-11-10",
-    "return_end": "2026-11-15",
+    "return_end": "2026-11-22",
     "min_days": 19,
     "max_days": 24,
     "passengers": 2,
     "selected_airlines": [
-      "LOT",
       "Turkish",
-      "Emirates",
-      "Qatar",
-      "Lufthansa",
       "KLM",
-      "Air_France",
-      "British_Airways",
-      "Etihad",
-      "Air_China",
-      "Korean_Air",
-      "All_Nippon",
       "Singapore",
-      "Cathay_Pacific",
-      "Swiss",
-      "Austrian",
       "Finnair",
-      "SAS",
-      "Asiana"
+      "SAS"
     ],
     "delay_between_requests": [
       30,
@@ -120,8 +106,16 @@
       "name": "Etihad Airways"
     },
     "British_Airways": {
-      "filter": "fs=airlines%3DBA%3Bbfc%3D1",
-      "name": "British Airways"
+      "filter": "fs=airlines%3DBA%2CMULT%3Bbfc%3D1",
+      "name": "British Airways + Multi"
+    },
+    "American_Airlines": {
+      "filter": "fs=airlines%3DAA%2CMULT%3Bbfc%3D1",
+      "name": "American Airlines + Multi"
+    },
+    "Qantas": {
+      "filter": "fs=airlines%3DQF%2CMULT%3Bbfc%3D1",
+      "name": "Qantas + Multi"
     }
   }
 }

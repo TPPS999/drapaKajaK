@@ -60,6 +60,8 @@ if "%1"=="" (
     echo   run.bat scraper       - Run extended scraper
     echo   run.bat excel         - Run Excel scraper
     echo   run.bat extractor     - Run data extractor
+    echo   run.bat watcher       - Run URL Watcher (rolling)
+    echo   run.bat watcher-once  - Run URL Watcher (jednorazowo)
     echo.
     echo [93mNo arguments provided - launching GUI by default...[0m
     echo.
@@ -93,6 +95,20 @@ if /i "%1"=="excel" (
     echo [96m+ Running Excel scraper...[0m
     echo.
     "%VENV_PYTHON%" src\kayak_excel_scraper.py
+    goto :end
+)
+
+if /i "%1"=="watcher" (
+    echo [96m+ Running URL Watcher...[0m
+    echo.
+    "%VENV_PYTHON%" src\url_watcher.py
+    goto :end
+)
+
+if /i "%1"=="watcher-once" (
+    echo [96m+ Running URL Watcher (once)...[0m
+    echo.
+    "%VENV_PYTHON%" src\url_watcher.py --once
     goto :end
 )
 

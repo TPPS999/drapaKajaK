@@ -1,0 +1,14 @@
+{
+  "_comment": "Lista URLi do monitorowania. Wklej linki z Kayak (jeden per linia w tablicy urls).",
+  "_comment2": "Linki zaczynające się od # są ignorowane (komentarze).",
+
+  "urls": [
+    "# Przykładowe linki — zastąp własnymi z kayak.pl",
+    "# https://www.kayak.pl/flights/WAW-AKL/2026-10-28/2026-11-18/2adults?sort=bestflight_a&fs=airlines%3DAA%2CMULT",
+    "# https://www.kayak.pl/flights/WAW-AKL/2026-10-28/2026-11-18/2adults?sort=bestflight_a&fs=airlines%3DQF%2CMULT"
+  ],
+
+  "check_interval_minutes": 60,
+  "delay_between_urls_seconds": [20, 35],
+  "rolling_mode": true
+}

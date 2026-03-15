@@ -24,6 +24,7 @@ class FlightToolSimple:
         # Variables for process control
         self.extended_process = None
         self.excel_process = None
+        self.url_watcher_process = None
         
         self.setup_gui()
         
@@ -43,6 +44,9 @@ class FlightToolSimple:
         # Data Extractor tab
         self.setup_extractor_tab(notebook)
         
+        # URL Watcher tab
+        self.setup_url_watcher_tab(notebook)
+
         # Test tab
         self.setup_test_tab(notebook)
         
@@ -138,10 +142,11 @@ class FlightToolSimple:
         
         # Create airline checkboxes in 5 columns
         airlines = [
-            "LOT", "Turkish", "Emirates", "Qatar", "Lufthansa", "KLM", 
-            "Air_France", "British_Airways", "Etihad", "Air_China", 
+            "LOT", "Turkish", "Emirates", "Qatar", "Lufthansa", "KLM",
+            "Air_France", "British_Airways", "Etihad", "Air_China",
             "Korean_Air", "All_Nippon", "Singapore", "Cathay_Pacific",
-            "Swiss", "Austrian", "Finnair", "SAS", "Asiana"
+            "Swiss", "Austrian", "Finnair", "SAS", "Asiana",
+            "American_Airlines", "Qantas",
         ]
         
         self.airline_vars = {}
@@ -170,7 +175,9 @@ class FlightToolSimple:
                 "Austrian": "Austrian Airlines",
                 "Finnair": "Finnair",
                 "SAS": "SAS",
-                "Asiana": "Asiana Airlines"
+                "Asiana": "Asiana Airlines",
+                "American_Airlines": "American Airlines",
+                "Qantas": "Qantas",
             }
             
             display_name = display_names.get(airline, airline.replace("_", " "))
@@ -326,6 +333,214 @@ class FlightToolSimple:
         self.extractor_log = scrolledtext.ScrolledText(log_frame, height=15, width=80)
         self.extractor_log.pack(fill=tk.BOTH, expand=True)
     
+    def setup_url_watcher_tab(self, notebook):
+        """Setup URL Watcher tab - monitorowanie konkretnych linków Kayak."""
+        frame = ttk.Frame(notebook)
+        notebook.add(frame, text="URL Watcher")
+
+        main_container = ttk.Frame(frame, padding="10")
+        main_container.pack(fill=tk.BOTH, expand=True)
+        main_container.grid_rowconfigure(0, weight=1)
+        main_container.grid_columnconfigure(0, weight=1)
+
+        # URLs input
+        urls_frame = ttk.LabelFrame(
+            main_container, text="Linki do monitorowania (jeden per linia)", padding="10"
+        )
+        urls_frame.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+        urls_frame.grid_rowconfigure(0, weight=1)
+        urls_frame.grid_columnconfigure(0, weight=1)
+
+        self.url_watcher_urls = scrolledtext.ScrolledText(urls_frame, height=12, wrap=tk.NONE)
+        self.url_watcher_urls.grid(row=0, column=0, sticky="nsew")
+
+        # Horizontal scrollbar for long URLs
+        xscroll = tk.Scrollbar(urls_frame, orient=tk.HORIZONTAL, command=self.url_watcher_urls.xview)
+        xscroll.grid(row=1, column=0, sticky="ew")
+        self.url_watcher_urls.config(xscrollcommand=xscroll.set)
+
+        url_btn_frame = tk.Frame(urls_frame)
+        url_btn_frame.grid(row=2, column=0, pady=(5, 0), sticky="w")
+
+        ttk.Button(url_btn_frame, text="Zapisz watchlistę",
+                   command=self.save_url_watchlist).pack(side=tk.LEFT, padx=5)
+        ttk.Button(url_btn_frame, text="Wczytaj watchlistę",
+                   command=self.load_url_watchlist).pack(side=tk.LEFT, padx=5)
+        ttk.Button(url_btn_frame, text="Wyczyść",
+                   command=lambda: self.url_watcher_urls.delete(1.0, tk.END)).pack(side=tk.LEFT, padx=5)
+
+        # Settings
+        settings_frame = ttk.LabelFrame(main_container, text="Ustawienia", padding="10")
+        settings_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+
+        tk.Label(settings_frame, text="Opóźnienie między URLami (s):").grid(row=0, column=0, sticky=tk.W)
+        self.url_delay_min_var = tk.StringVar(value="20")
+        ttk.Entry(settings_frame, textvariable=self.url_delay_min_var, width=8).grid(row=0, column=1, padx=5)
+        tk.Label(settings_frame, text="-").grid(row=0, column=2)
+        self.url_delay_max_var = tk.StringVar(value="35")
+        ttk.Entry(settings_frame, textvariable=self.url_delay_max_var, width=8).grid(row=0, column=3, padx=5)
+
+        tk.Label(settings_frame, text="Interwał sprawdzania (min):").grid(
+            row=0, column=4, sticky=tk.W, padx=(20, 0))
+        self.url_interval_var = tk.StringVar(value="60")
+        ttk.Entry(settings_frame, textvariable=self.url_interval_var, width=8).grid(row=0, column=5, padx=5)
+
+        self.url_rolling_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(settings_frame, text="Rolling mode (powtarzaj)",
+                        variable=self.url_rolling_var).grid(
+            row=0, column=6, sticky=tk.W, padx=(20, 0))
+
+        # Control
+        control_frame = ttk.LabelFrame(main_container, text="Control", padding="10")
+        control_frame.grid(row=2, column=0, sticky="ew", pady=(0, 10))
+
+        btn_frame = tk.Frame(control_frame)
+        btn_frame.pack()
+
+        self.start_url_watcher_btn = ttk.Button(
+            btn_frame, text="START WATCHING", command=self.start_url_watcher)
+        self.start_url_watcher_btn.pack(side=tk.LEFT, padx=5)
+
+        self.stop_url_watcher_btn = ttk.Button(
+            btn_frame, text="STOP", command=self.stop_url_watcher, state="disabled")
+        self.stop_url_watcher_btn.pack(side=tk.LEFT, padx=5)
+
+        ttk.Button(btn_frame, text="Sprawdź raz (--once)",
+                   command=self.run_url_watcher_once).pack(side=tk.LEFT, padx=20)
+
+        # Log
+        log_frame = ttk.LabelFrame(main_container, text="Log", padding="10")
+        log_frame.grid(row=3, column=0, sticky="nsew", pady=(0, 0))
+        main_container.grid_rowconfigure(3, weight=1)
+
+        self.url_watcher_log = scrolledtext.ScrolledText(log_frame, height=8, width=80)
+        self.url_watcher_log.pack(fill=tk.BOTH, expand=True)
+
+    def save_url_watchlist(self):
+        """Zapisz URLe z text area do config/url_watchlist.json."""
+        try:
+            raw = self.url_watcher_urls.get(1.0, tk.END)
+            urls = [line.strip() for line in raw.splitlines() if line.strip()]
+
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            config_path = os.path.join(project_root, "config", "url_watchlist.json")
+
+            import json
+            config = {
+                "urls": urls,
+                "check_interval_minutes": int(self.url_interval_var.get() or 60),
+                "delay_between_urls_seconds": [
+                    int(self.url_delay_min_var.get() or 20),
+                    int(self.url_delay_max_var.get() or 35),
+                ],
+                "rolling_mode": self.url_rolling_var.get(),
+            }
+            with open(config_path, "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+
+            self.url_watcher_log.insert(tk.END, f"Zapisano {len(urls)} URLi do url_watchlist.json\n")
+            self.url_watcher_log.see(tk.END)
+            self.status_var.set("Watchlista zapisana")
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Nie można zapisać watchlisty:\n{e}")
+
+    def load_url_watchlist(self):
+        """Wczytaj URLe z config/url_watchlist.json do text area."""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            config_path = os.path.join(project_root, "config", "url_watchlist.json")
+
+            import json
+            if not os.path.exists(config_path):
+                messagebox.showwarning("Brak pliku", "Nie znaleziono config/url_watchlist.json")
+                return
+
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+
+            urls = config.get("urls", [])
+            self.url_watcher_urls.delete(1.0, tk.END)
+            self.url_watcher_urls.insert(tk.END, "\n".join(urls))
+
+            self.url_interval_var.set(str(config.get("check_interval_minutes", 60)))
+            delay = config.get("delay_between_urls_seconds", [20, 35])
+            self.url_delay_min_var.set(str(delay[0]))
+            self.url_delay_max_var.set(str(delay[1]))
+            self.url_rolling_var.set(config.get("rolling_mode", True))
+
+            self.url_watcher_log.insert(tk.END, f"Wczytano {len(urls)} URLi\n")
+            self.url_watcher_log.see(tk.END)
+            self.status_var.set("Watchlista wczytana")
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Nie można wczytać watchlisty:\n{e}")
+
+    def start_url_watcher(self):
+        """Zapisz watchlistę i uruchom url_watcher.py."""
+        self.save_url_watchlist()
+        self.start_url_watcher_btn.config(state="disabled")
+        self.stop_url_watcher_btn.config(state="normal")
+        self._run_url_watcher_script()
+
+    def run_url_watcher_once(self):
+        """Uruchom url_watcher.py jednorazowo (--once)."""
+        self.save_url_watchlist()
+        self._run_url_watcher_script(once=True)
+
+    def _run_url_watcher_script(self, once: bool = False):
+        script = "src/url_watcher.py"
+        args = ["--once"] if once else []
+        cmd = [sys.executable, script] + args
+
+        def worker():
+            try:
+                self.root.after(0, lambda: self.url_watcher_log.insert(
+                    tk.END, "Uruchamiam URL Watcher...\n"))
+                self.root.after(0, lambda: self.status_var.set("URL Watcher działa..."))
+
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    universal_newlines=True,
+                    cwd=project_root,
+                )
+                self.url_watcher_process = process
+
+                for line in process.stdout:
+                    self.root.after(0, lambda l=line: self.url_watcher_log.insert(tk.END, l))
+                    self.root.after(0, lambda: self.url_watcher_log.see(tk.END))
+
+                process.wait()
+                rc = process.returncode
+                msg = "URL Watcher zakończony.\n" if rc == 0 else f"URL Watcher zakończony z kodem {rc}\n"
+                self.root.after(0, lambda: self.url_watcher_log.insert(tk.END, msg))
+                self.root.after(0, lambda: self.status_var.set("URL Watcher zakończony"))
+            except Exception as e:
+                self.root.after(0, lambda: self.url_watcher_log.insert(tk.END, f"Błąd: {e}\n"))
+            finally:
+                self.url_watcher_process = None
+                self.root.after(0, lambda: self.start_url_watcher_btn.config(state="normal"))
+                self.root.after(0, lambda: self.stop_url_watcher_btn.config(state="disabled"))
+                self.root.after(0, lambda: self.url_watcher_log.see(tk.END))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def stop_url_watcher(self):
+        """Zatrzymaj URL Watcher."""
+        if self.url_watcher_process:
+            try:
+                self.url_watcher_process.terminate()
+                self.url_watcher_log.insert(tk.END, "\nURL Watcher zatrzymany.\n")
+                self.url_watcher_log.see(tk.END)
+                self.status_var.set("URL Watcher zatrzymany")
+            except Exception:
+                pass
+        self.start_url_watcher_btn.config(state="normal")
+        self.stop_url_watcher_btn.config(state="disabled")
+
     def setup_test_tab(self, notebook):
         """Setup Test tab"""
         test_frame = ttk.Frame(notebook)
@@ -430,7 +645,9 @@ class FlightToolSimple:
                 }
             }
             
-            with open("config/config_extended.json", "w", encoding="utf-8") as f:
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            config_path = os.path.join(project_root, "config", "config_extended.json")
+            with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=2, ensure_ascii=False)
             
             self.extended_log.insert(tk.END, "OK Configuration saved to config_extended.json\n")
@@ -499,15 +716,15 @@ class FlightToolSimple:
         self.save_extended_config()
         
         # Check if scraper file exists
-        if not os.path.exists("scrap_only_extended.py"):
-            messagebox.showerror("Error", "File scrap_only_extended.py not found\nMake sure you are in the project folder.")
+        if not os.path.exists("src/scrap_only_extended.py"):
+            messagebox.showerror("Error", "File src/scrap_only_extended.py not found\nMake sure you are in the project folder.")
             return
-        
+
         # Update button states
         self.start_extended_btn.config(state="disabled")
         self.stop_extended_btn.config(state="normal")
-        
-        self.run_script_with_output("scrap_only_extended.py", self.extended_log, "Extended Scraping", "extended")
+
+        self.run_script_with_output("src/scrap_only_extended.py", self.extended_log, "Extended Scraping", "extended")
     
     def stop_extended_scraping(self):
         """Stop Extended Scraping"""
@@ -571,15 +788,15 @@ class FlightToolSimple:
             messagebox.showerror("Error", f"File not found: {self.excel_file_var.get()}")
             return
         
-        if not os.path.exists("kayak_excel_scraper.py"):
-            messagebox.showerror("Error", "File kayak_excel_scraper.py not found\nMake sure you are in the project folder.")
+        if not os.path.exists("src/kayak_excel_scraper.py"):
+            messagebox.showerror("Error", "File src/kayak_excel_scraper.py not found\nMake sure you are in the project folder.")
             return
-        
+
         # Update button states
         self.start_excel_btn.config(state="disabled")
         self.stop_excel_btn.config(state="normal")
-        
-        self.run_script_with_output(f"kayak_excel_scraper.py {self.excel_file_var.get()}", self.excel_log, "Excel Scraping", "excel")
+
+        self.run_script_with_output(f"src/kayak_excel_scraper.py {self.excel_file_var.get()}", self.excel_log, "Excel Scraping", "excel")
     
     def stop_excel_scraping(self):
         """Stop Excel Scraping"""
@@ -647,17 +864,17 @@ class FlightToolSimple:
             messagebox.showwarning("Warning", "Select valid directory")
             return
         
-        if not os.path.exists("simple_kayak_extractor.py"):
-            messagebox.showerror("Error", "File simple_kayak_extractor.py not found\nMake sure you are in the project folder.")
+        if not os.path.exists("src/simple_kayak_extractor.py"):
+            messagebox.showerror("Error", "File src/simple_kayak_extractor.py not found\nMake sure you are in the project folder.")
             return
-        
+
         # Fix path for command line - use quotes for paths with spaces
         if " " in source_dir:
             source_dir_quoted = f'"{source_dir}"'
         else:
             source_dir_quoted = source_dir
-        
-        self.run_script_with_output(f"simple_kayak_extractor.py {source_dir_quoted}", self.extractor_log, "Data Extraction", "extractor")
+
+        self.run_script_with_output(f"src/simple_kayak_extractor.py {source_dir_quoted}", self.extractor_log, "Data Extraction", "extractor")
     
     # Test Methods
     def quick_chromedriver_test(self):
@@ -695,12 +912,12 @@ class FlightToolSimple:
     
     def run_system_test(self):
         """Run full system test"""
-        self.run_script_with_output("test_system.py", self.test_log, "System Test", "test")
+        self.run_script_with_output("src/test_system.py", self.test_log, "System Test", "test")
     
     def reinstall_components(self):
         """Reinstall components"""
         if messagebox.askyesno("Reinstall", "Run component setup again?"):
-            self.run_script_with_output("setup_components.py", self.test_log, "Component Setup", "test")
+            self.run_script_with_output("setup_components.py", self.test_log, "Component Setup", "test")  # setup_components.py is in root
     
     # Utility Methods
     def run_script_with_output(self, script_command, log_widget, operation_name, process_type=None):
@@ -719,20 +936,23 @@ class FlightToolSimple:
                     cmd = [sys.executable, script_command]
                 
                 # Handle quoted paths properly
-                if script_command.startswith("simple_kayak_extractor.py"):
+                if script_command.startswith("src/simple_kayak_extractor.py"):
                     # For extractor, handle the path argument specially
                     parts = script_command.split(" ", 1)
                     if len(parts) > 1:
                         path_arg = parts[1].strip('"')  # Remove quotes
                         cmd = [sys.executable, parts[0], path_arg]
                 
+                # Run from project root so relative paths work correctly
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 process = subprocess.Popen(
                     cmd,
-                    stdout=subprocess.PIPE, 
-                    stderr=subprocess.STDOUT, 
-                    text=True, 
-                    bufsize=1, 
-                    universal_newlines=True
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    universal_newlines=True,
+                    cwd=project_root
                 )
                 
                 # Store process reference for stopping
