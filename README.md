@@ -1,404 +1,283 @@
-# 🛫 drapaKajaK - Flight Price Scraper
+# drapaKajaK — Śledzenie cen lotów z Kayak
 
-Zaawansowany system scrapingu i analizy cen lotów z Kayak.pl z **kompletnym interfejsem graficznym** i pełną automatyzacją.
-
-## 🚀 Ultra-szybki start (2 minuty)
-
-### 📥 Pobierz projekt (wybierz opcję):
-
-#### Opcja A: Git (jeśli masz Git zainstalowany)
-```bash
-git clone https://github.com/TPPS999/drapaKajaK.git
-cd drapaKajaK
-```
-
-#### Opcja B: Bez Git (pobierz jako ZIP)
-1. **Idź na:** https://github.com/TPPS999/drapaKajaK
-2. **Kliknij:** `🟢 Code` → `Download ZIP`
-3. **Rozpakuj** ZIP do folderu `drapaKajaK`
-4. **Otwórz terminal/cmd** w tym folderze
-
-#### Opcja C: Zainstaluj Git (jednorazowo)
-- **Windows:** https://git-scm.com/download/win
-- **macOS:** `brew install git` lub https://git-scm.com/download/mac
-- **Linux:** `sudo apt install git` (Ubuntu/Debian)
-
-### 🚀 Ultra-prosty start - NOWY SPOSÓB! ⚡
-
-#### Windows - Jedno kliknięcie!
-```bash
-# Automatycznie sprawdza/tworzy venv i uruchamia:
-run.bat              # Uruchom GUI (domyślnie)
-run.bat test         # Test systemu
-run.bat scraper      # Extended scraper
-run.bat excel        # Excel scraper
-run.bat gui          # GUI (jawnie)
-
-# Lub stare skrypty (też z auto-venv):
-run_test.bat         # Test systemu
-run_scraper.bat      # Extended scraper
-```
-
-#### Linux/macOS - Jedno polecenie!
-```bash
-# Nadaj uprawnienia (jednorazowo):
-chmod +x run.sh run_test.sh run_scraper.sh
-
-# Automatycznie sprawdza/tworzy venv i uruchamia:
-./run.sh             # Uruchom GUI (domyślnie)
-./run.sh test        # Test systemu
-./run.sh scraper     # Extended scraper
-./run.sh excel       # Excel scraper
-./run.sh gui         # GUI (jawnie)
-
-# Lub stare skrypty (też z auto-venv):
-./run_test.sh        # Test systemu
-./run_scraper.sh     # Extended scraper
-```
-
-**To wszystko!**
-- ✅ **Pierwsze uruchomienie** - automatycznie tworzy venv
-- ✅ **Kolejne uruchomienia** - używa istniejącego venv
-- ✅ **Zero konfiguracji** - działa od razu! 🎉
+Narzędzie do automatycznego sprawdzania i monitorowania cen lotów z Kayak.pl. Obsługuje wiele linii lotniczych, zakresów dat i konkretnych linków. Ma prosty interfejs graficzny — nie trzeba nic pisać w terminalu.
 
 ---
 
-## 📋 Spis treści
-- [Interfejs GUI](#-interfejs-gui---flight-tool)
-- [Funkcje](#-funkcje)
-- [Pierwszy scraping](#-pierwszy-scraping---krok-po-kroku)
-- [Wymagania](#-wymagania)
-- [Scenariusze użycia](#-scenariusze-użycia)
-- [Analiza danych](#-analiza-danych)
-- [Rozwiązywanie problemów](#-rozwiązywanie-problemów)
+## Zanim zaczniesz — wymagania wstępne
 
-## 🖥️ Interfejs GUI - Flight Tool
+Zainstaluj dwie rzeczy. Bez nich nic nie zadziała.
 
-Po uruchomieniu `setup_and_run.bat` automatycznie otwiera się **Flight Tool** - kompletny interfejs graficzny z czterema zakładkami:
+### 1. Python 3.8 lub nowszy
 
-### 🎯 Główne zakładki:
+**Windows:**
+1. Wejdź na https://www.python.org/downloads/
+2. Kliknij duży żółty przycisk „Download Python 3.x.x"
+3. Uruchom pobrany instalator
+4. ⚠️ **WAŻNE:** Zaznacz checkbox „**Add Python to PATH**" na pierwszym ekranie
+5. Kliknij „Install Now"
+6. Sprawdź w terminalu: `python --version` — powinno pokazać np. `Python 3.11.x`
 
-| Zakładka | Funkcja | Opis |
-|----------|---------|------|
-| **Extended Scraper** | 🔄 Wszystkie kombinacje | Sprawdza wszystkie daty/linie w zadanym zakresie |
-| **Excel Scraper** | 📋 Konkretne loty | Sprawdza tylko wybrane loty z pliku Excel |
-| **Data Extractor** | 📊 Analiza wyników | Wyciąga najlepsze oferty do Excel |
-| **Test** | 🧪 Sprawdzenie systemu | Testuje czy wszystko działa |
-
-### 🖱️ Wszystko przez kliknięcia:
-- ✅ **Bez edycji JSON** - konfiguracja przez checkboxy i pola
-- ✅ **Logi na żywo** - widzisz postęp scrapingu w czasie rzeczywistym  
-- ✅ **Stop/Start** - pełna kontrola nad procesem
-- ✅ **Automatyczna instalacja** - `setup_and_run.bat` robi wszystko
-
-## ✨ Funkcje
-
-### 🎯 Zaawansowany scraping
-- **Extended Mode** - wszystkie kombinacje dat w zadanym zakresie
-- **Excel Mode** - konkretne loty z pliku Excel  
-- **Rolling Mode** - ciągły monitoring 24/7 (przez GUI)
-- **Smart delays** - inteligentne opóźnienia między zapytaniami
-
-### 🔧 15+ linii lotniczych (wybór przez checkboxy)
-- **Zatokowe**: Turkish, Emirates, Qatar, Etihad
-- **Azjatyckie**: Air China, Korean Air, Asiana, ANA, Singapore
-- **Europejskie**: LOT, Lufthansa, KLM, Air France, Swiss, Austrian
-- **Pozostałe**: British Airways, Finnair, SAS, Cathay Pacific
-
-### 📊 Inteligentna analiza
-- **Data Extractor** - automatyczne wyciąganie najlepszych ofert
-- **Excel eksport** - szczegółowe tabele z analizą przesiadek, czasów, cen
-- **Sortowanie i ranking** - znajdź najtańsze opcje automatycznie
-- **Statystyki tras** - porównanie średnich cen według linii
-
-## 🎯 Pierwszy scraping - krok po kroku
-
-### 1. **Uruchomienie** (jednorazowo)
+**macOS:**
 ```bash
-git clone https://github.com/TPPS999/drapaKajaK.git
+brew install python3
+```
+Jeśli nie masz brew: https://brew.sh
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt install python3 python3-pip python3-venv
+```
+
+---
+
+### 2. Google Chrome lub Chromium
+
+Program otwiera Chrome automatycznie w tle (tryb niewidoczny) żeby sprawdzać ceny. Chrome musi być zainstalowany na komputerze.
+
+**Windows:**
+1. Wejdź na https://www.google.com/chrome/
+2. Pobierz i zainstaluj
+
+Lub jeśli wolisz Chromium (wersja open-source, bez Google):
+1. Wejdź na https://www.chromium.org/getting-involved/download-chromium/
+2. Pobierz i zainstaluj
+
+**macOS:**
+```bash
+brew install --cask google-chrome
+# lub Chromium:
+brew install --cask chromium
+```
+
+**Linux:**
+```bash
+# Chrome:
+sudo apt install google-chrome-stable
+
+# Lub Chromium (lżejszy, bez Google):
+sudo apt install chromium-browser
+```
+
+> **Dlaczego Chrome?** Kayak.pl to strona, która ładuje ceny przez JavaScript. Zwykłe zapytanie HTTP ich nie zobaczy — potrzebna jest prawdziwa przeglądarka. Program otwiera ją w tle, bez okna, czyta ceny i zamyka.
+
+> **ChromeDriver** (sterownik do automatyzacji Chrome) jest pobierany automatycznie przy pierwszym uruchomieniu — nie musisz go instalować ręcznie.
+
+---
+
+## Instalacja i pierwsze uruchomienie
+
+### Krok 1: Pobierz projekt
+
+**Opcja A — przez Git (zalecane):**
+```bash
+git clone https://github.com/TPPP999/drapaKajaK.git
 cd drapaKajaK
-
-# Utwórz środowisko wirtualne (venv)
-python setup_venv.py
-
-# Aktywuj venv
-activate_venv.bat         # Windows
-source activate_venv.sh   # Linux/macOS
 ```
 
-### 2. **Test systemu** (zalecane)
-- Zakładka **"Test"** → **"Quick ChromeDriver Test"**
-- Sprawdź czy wyświetla: `✓ ChromeDriver test PASSED`
+**Opcja B — jako ZIP (bez Git):**
+1. Wejdź na https://github.com/TPPP999/drapaKajaK
+2. Kliknij zielony przycisk `Code` → `Download ZIP`
+3. Rozpakuj ZIP
+4. Otwórz terminal/cmd w folderze `drapaKajaK`
 
-### 3. **Twój pierwszy scraping**
-- Zakładka **"Extended Scraper"**
-- Zostaw domyślne: **WAW → ICN** (Warszawa → Seul)
-- Daty: **październik/listopad 2025**
-- Zaznacz **2-3 linie** (np. Turkish, Qatar, Emirates)
-- Kliknij **"START SCRAPING"**
+### Krok 2: Uruchom
 
-### 4. **Obserwuj postęp**
-- Logi pokazują się na żywo
-- Widzisz ile zapytań zostało: `[15/120] Turkish Airlines...`
-- Możesz zatrzymać w każdej chwili: **"STOP SCRAPING"**
-
-### 5. **Analiza wyników**
-- Zakładka **"Data Extractor"**
-- **"Browse"** → wybierz `kayak_text_data/txt_session_[data]`
-- **"Preview Data"** → zobacz ile plików znaleziono
-- **"EXTRACT TO EXCEL"** → tworzy analizę
-
-### 6. **🎉 Gotowe!**
-- Automatycznie otwiera się Excel z najlepszymi ofertami
-- Sortowanie po cenie, analiza przesiadek, porównanie tras
-
-## 🔧 Wymagania
-
-### Automatycznie instalowane przez setup_venv.py:
-- ✅ **Środowisko wirtualne (venv)** - izolowane od systemu
-- ✅ **Wszystkie biblioteki Python** - selenium, pandas, openpyxl, webdriver-manager, requests, beautifulsoup4
-- ✅ **ChromeDriver** - pobierany automatycznie przy pierwszym uruchomieniu
-- ✅ **Skrypty pomocnicze** - activate_venv.bat/sh, run_test.bat/sh, run_scraper.bat/sh
-
-### Wymagania systemowe (musisz zainstalować ręcznie):
-- **Python 3.7+** z [python.org](https://python.org) - upewnij się, że jest w PATH
-- **Google Chrome** z [chrome.google.com](https://chrome.google.com)
-
-### Zalety środowiska wirtualnego (venv):
-- 🔒 **Izolacja** - nie psuje systemowego Pythona
-- 🧹 **Czystość** - łatwe usunięcie (usuń folder venv/)
-- 🔧 **Portable** - działa tak samo na Windows/Linux/macOS
-- ⚡ **Fix Unicode** - automatycznie obsługuje polskie znaki (Windows)
-
-**Reszta dzieje się automatycznie!** 🚀
-
-## 🎯 Scenariusze użycia
-
-### Scenariusz 1: Znajdź najlepszą ofertę (Extended Mode)
+**Windows** — kliknij dwukrotnie `run.bat` lub wpisz w terminalu:
 ```
-GUI → Extended Scraper → START SCRAPING
-↓ (automatycznie sprawdza wszystkie kombinacje)
-GUI → Data Extractor → EXTRACT TO EXCEL  
-↓ (Excel z ranking najlepszych ofert)
-🎯 Masz TOP oferty posortowane po cenie!
+run.bat
 ```
 
-### Scenariusz 2: Konkretne loty (Excel Mode)
-```
-GUI → Excel Scraper → Create Sample
-↓ (tworzy flights_list.xlsx)
-Edytuj Excel → dodaj swoje loty
-↓
-GUI → Excel Scraper → START EXCEL SCRAPING
-↓
-GUI → Data Extractor → analiza w Excel
-```
-
-### Scenariusz 3: Ciągły monitoring (Rolling Mode)
-```
-GUI → Extended Scraper → ☑️ Rolling mode
-↓ (działa w kółko sprawdzając ceny)
-START SCRAPING → działa 24/7
-↓ (zatrzymanie: STOP SCRAPING)
-Regularnie analizuj przez Data Extractor
-```
-
-### Scenariusz 4: Szybki test
-```
-GUI → Test → Quick ChromeDriver Test
-↓ (sprawdza czy wszystko działa)
-Extended Scraper → zaznacz 1 linię → krótki test
-```
-
-## 📊 Analiza danych w Excel
-
-### Automatyczne kolumny w wyniku:
-- **Podstawowe:** Cena łączna/za osobę, Data wylotu/powrotu, Linia
-- **Lotniska:** Kody IATA (WAW, ICN), Trasa
-- **Czasy:** Wylot/Przylot, Czas podróży total vs rzeczywisty lot
-- **Przesiadki:** Do 3 na kierunek - lotniska + czasy oczekiwania
-- **Ranking:** Automatyczne sortowanie po cenie
-
-### Przykład rezultatu:
-```
-📊 Najlepsze oferty WAW→ICN:
-1. Turkish Airlines: 6,240 PLN (1 przesiadka)
-2. Qatar Airways: 7,180 PLN (1 przesiadka) 
-3. Emirates: 8,450 PLN (1 przesiadka)
-4. Air China: 9,120 PLN (2 przesiadki)
-```
-
-## 🛠️ Rozwiązywanie problemów
-
-### 1. GUI nie otwiera się
+**Linux/macOS:**
 ```bash
-# Windows:
-activate_venv.bat
-python FlightTool_Simple.py
-
-# Linux/macOS:
-source activate_venv.sh
-python FlightTool_Simple.py
-
-# LUB użyj gotowego skryptu (bez aktywacji):
-run_test.bat         # Windows
-./run_test.sh        # Linux/macOS
+chmod +x run.sh   # jednorazowo, nadaje uprawnienia
+./run.sh
 ```
 
-### 2. "Python nie znaleziony"
-- Zainstaluj Python 3.7+ z [python.org](https://python.org)
-- **Windows:** Zaznacz "Add to PATH" podczas instalacji
-- Sprawdź: `python --version`
+To wszystko. Przy pierwszym uruchomieniu program automatycznie:
+- tworzy środowisko wirtualne Python (`venv/`)
+- instaluje wszystkie wymagane biblioteki
+- otwiera interfejs graficzny
 
-### 3. "Chrome nie znaleziony"
-- Zainstaluj Google Chrome z [chrome.google.com](https://chrome.google.com)
+---
 
-### 4. Błędy kodowania Unicode (Windows)
-- **Naprawione!** test_system.py automatycznie obsługuje UTF-8
-- Jeśli nadal problem: `chcp 65001` przed uruchomieniem
+## Interfejs — zakładki
 
-### 5. Venv nie działa
+Po uruchomieniu zobaczysz okno z pięcioma zakładkami:
+
+| Zakładka | Do czego służy |
+|----------|---------------|
+| **Extended Scraper** | Sprawdza wszystkie kombinacje dat w zadanym zakresie. Wybierasz trasę, daty od-do, linie lotnicze i klikasz START. |
+| **URL Watcher** | Wklejasz konkretne linki z Kayak i program monitoruje je cyklicznie. Najprostsza opcja jeśli wiesz czego szukasz. |
+| **Excel Scraper** | Sprawdza loty z pliku Excel (własna lista konkretnych dat/tras). |
+| **Data Extractor** | Wyciąga najlepsze oferty z zebranych danych i zapisuje do Excel. |
+| **Test** | Sprawdza czy Chrome i ChromeDriver działają poprawnie. |
+
+---
+
+## Tryb URL Watcher — monitorowanie konkretnych linków
+
+Najprostszy sposób użycia. Zamiast konfigurować zakresy dat, wklejasz gotowe linki z Kayak.
+
+### Jak uzyskać link z Kayak:
+1. Wejdź na www.kayak.pl
+2. Wybierz trasę, daty, liczbę pasażerów
+3. Odfiltruj konkretną linię lotniczą (ważne — filter na stronie wyników)
+4. Skopiuj URL z paska przeglądarki
+
+Przykładowy link:
+```
+https://www.kayak.pl/flights/WAW-AKL/2026-10-28/2026-11-18/2adults?sort=bestflight_a&fs=airlines%3DQF%2CMULT
+```
+
+### Jak używać:
+1. Otwórz zakładkę **URL Watcher**
+2. Wklej linki — jeden na linię
+3. Ustaw interwał sprawdzania (domyślnie: co 60 minut)
+4. Kliknij **"Zapisz watchlistę"** a potem **"START WATCHING"**
+
+Wyniki zapisywane są do pliku CSV w folderze `output/url_watcher/` — każdy dzień to osobny plik `prices_YYYYMMDD.csv`.
+
+Możesz też uruchomić jednorazowo (bez ciągłego monitorowania):
+```
+run.bat watcher-once
+```
+
+---
+
+## Tryb Extended Scraper — wszystkie kombinacje
+
+Jeśli nie masz jeszcze konkretnych dat, ten tryb sprawdza wszystkie możliwe kombinacje w zadanym zakresie.
+
+### Konfiguracja w GUI:
+- **Trasa:** kody IATA lotnisk, np. `WAW` → `AKL`
+- **Daty wylotu:** zakres od-do (np. 24-30 października)
+- **Daty powrotu:** zakres od-do
+- **Długość pobytu:** minimalna i maksymalna liczba dni
+- **Linie lotnicze:** zaznacz checkboxy
+- **Opóźnienia:** czas między zapytaniami (zalecane 30-45s)
+
+### Dostępne linie lotnicze:
+| Region | Linie |
+|--------|-------|
+| Zatokowe | Turkish Airlines, Emirates, Qatar Airways, Etihad |
+| Europejskie | LOT, Lufthansa, KLM, Air France, Swiss, Austrian, Finnair, SAS |
+| Azjatyckie | Singapore Airlines, Korean Air, All Nippon Airways, Cathay Pacific, Asiana, Air China |
+| Australijskie / inne | Qantas, British Airways, American Airlines |
+
+### Rolling mode (ciągłe monitorowanie):
+Zaznacz checkbox „Rolling mode" — program po zakończeniu jednej rundy odczeka podaną liczbę minut i zaczyna od nowa. Idealny do uruchomienia na noc.
+
+---
+
+## Analiza wyników — Data Extractor
+
+Po zebraniu danych:
+1. Otwórz zakładkę **Data Extractor**
+2. Kliknij **Browse** i wybierz folder z wynikami (`output/kayak_text_data/...`)
+3. **Preview Data** — sprawdź ile plików znaleziono
+4. **EXTRACT TO EXCEL** — tworzy plik Excel z najlepszymi ofertami
+
+Plik Excel zawiera kolumny:
+- Cena za osobę i łącznie (PLN)
+- Data wylotu i powrotu
+- Linia lotnicza
+- Czasy lotów i przesiadek
+- Lotniska przesiadkowe
+
+---
+
+## Komendy CLI (bez GUI)
+
 ```bash
-# Usuń i utwórz ponownie:
-# Windows:
-rmdir /s venv
-python setup_venv.py
-
-# Linux/macOS:
-rm -rf venv
-python3 setup_venv.py
+run.bat                  # Uruchom GUI (Windows)
+run.bat test             # Test ChromeDriver
+run.bat scraper          # Extended scraper (bez GUI)
+run.bat watcher          # URL Watcher — ciągłe monitorowanie
+run.bat watcher-once     # URL Watcher — jednorazowe sprawdzenie
+run.bat extractor <ścieżka>  # Data Extractor
 ```
 
-### 6. Brak modułów po aktywacji venv
-```bash
-# Sprawdź czy używasz właściwego Pythona:
-which python        # Linux/macOS
-where python        # Windows
+Linux/macOS — te same komendy z `./run.sh` zamiast `run.bat`.
 
-# Powinno pokazać ścieżkę do venv/Scripts/python.exe (Windows)
-# lub venv/bin/python (Linux/macOS)
-```
+---
 
-### 7. Test ChromeDriver nie przechodzi
-```bash
-# Uruchom test z venv:
-run_test.bat         # Windows
-./run_test.sh        # Linux/macOS
-
-# Lub ręcznie:
-activate_venv.bat && python test_system.py
-```
-
-### 8. Brak wyników w scrapingu
-- Zwiększ opóźnienia: 40-60s między zapytaniami
-- Sprawdź czy Kayak nie blokuje (spróbuj za kilka godzin)
-- Użyj mniejszej liczby linii lotniczych
-
-### 9. Błędy w Data Extractor
-```
-GUI → Data Extractor → Preview Data
-(sprawdź czy pliki .txt zawierają ceny)
-```
-
-## 📁 Struktura projektu
+## Struktura plików
 
 ```
 drapaKajaK/
-├── 🌐 venv/                         # Środowisko wirtualne Python
-├──
-├── ⚡ run.bat/sh                     # GŁÓWNY LAUNCHER (auto-venv) ⭐ NOWY!
-├── ⚙️ setup_venv.py                 # Tworzenie środowiska wirtualnego
-├── 🚀 activate_venv.bat/sh          # Aktywacja venv (opcjonalne)
-├── ▶️ run_test.bat/sh               # Uruchom testy (auto-venv)
-├── ▶️ run_scraper.bat/sh            # Uruchom scraper (auto-venv)
-├──
-├── 🖥️ FlightTool_Simple.py          # GŁÓWNE GUI
-├── 🔧 test_system.py                # Tester systemu (Unicode fix)
-├──
-├── 🔄 scrap_only_extended.py        # Extended scraper (używany przez GUI)
-├── 📋 kayak_excel_scraper.py        # Excel scraper (używany przez GUI)
-├── 📊 simple_kayak_extractor.py     # Data extractor (używany przez GUI)
-├──
-├── ⚙️ config_extended.json          # Konfiguracja (generowana przez GUI)
-├── 📄 flights_list.xlsx             # Przykładowe loty (tworzony przez GUI)
-├──
-├── 📁 kayak_text_data/              # Wyniki Extended mode
-├── 📁 kayak_excel_data/             # Wyniki Excel mode
-└── 📊 kayak_offers_[timestamp].xlsx # Analiza Excel (generowany przez GUI)
+├── run.bat / run.sh          ← TUTAJ ZACZYNASZ
+├── requirements.txt          ← lista bibliotek Python
+│
+├── src/
+│   ├── FlightTool_Simple.py  ← główne GUI
+│   ├── url_watcher.py        ← URL Watcher (scraper)
+│   ├── scrap_only_extended.py← Extended scraper
+│   ├── kayak_excel_scraper.py← Excel scraper
+│   ├── simple_kayak_extractor.py ← analiza wyników
+│   └── test_system.py        ← testy
+│
+├── config/
+│   ├── config_extended.json  ← konfiguracja Extended (zapisywana przez GUI)
+│   └── url_watchlist.json    ← lista URLi do monitorowania
+│
+├── output/
+│   ├── kayak_text_data/      ← surowe wyniki Extended mode
+│   ├── kayak_excel_data/     ← wyniki Excel mode
+│   └── url_watcher/          ← wyniki URL Watcher (CSV)
+│
+├── scripts/
+│   └── setup_venv.py         ← tworzenie środowiska (wywoływane przez run.bat)
+│
+└── venv/                     ← środowisko wirtualne (tworzone automatycznie)
 ```
-
-## 🎨 Zaawansowane funkcje GUI
-
-### Extended Scraper (zakładka):
-- **Route:** WAW → ICN (edytowalne kody IATA)
-- **Dates:** Zakresy dat z polami tekstowymi  
-- **Airlines:** 15+ linii jako checkboxy z przyciskami "Select All/None/Popular"
-- **Rolling Mode:** Checkbox + ustawienia przerw
-- **Live Logs:** Postęp w czasie rzeczywistym
-
-### Excel Scraper (zakładka):
-- **Browse:** Wybór pliku Excel
-- **Create Sample:** Automatyczne tworzenie przykładu
-- **Live Logs:** Postęp dla każdego lotu z Excel
-
-### Data Extractor (zakładka):
-- **Browse:** Wybór folderu z wynikami
-- **Preview:** Podgląd znalezionych plików
-- **Quick Select:** Szybki wybór `rolling_mode`
-
-## 🚨 Ważne uwagi
-
-- **Szanuj Kayak**: Używaj rozsądnych opóźnień (30-45s)
-- **Nie przesadzaj**: Max 50-100 zapytań na sesję
-- **Rolling mode**: Idealny do długoterminowego monitorowania
-- **GUI automatycznie zapisuje** konfigurację między sesjami
-
-## 🎯 Porównanie: Stara vs Nowa metoda
-
-### ❌ Stara metoda (instalacja globalna):
-```bash
-# Instalacja na systemowym Pythonie (niebezpieczne):
-pip install selenium webdriver-manager requests pandas...
-# Może konfliktować z innymi projektami
-# Problemy z Unicode na Windows
-python scrap_only_extended.py
-# Pamiętać komendy i ścieżki
-python simple_kayak_extractor.py kayak_text_data/session_folder
-```
-
-### ✅ Nowa metoda (auto-venv + GUI):
-```bash
-# NAJŁATWIEJ - run.bat/sh (auto-venv!):
-run.bat              # Windows - GUI
-./run.sh             # Linux/macOS - GUI
-run.bat test         # Test systemu
-./run.sh scraper     # Extended scraper
-
-# Lub ręcznie (jeśli wolisz):
-python setup_venv.py         # Raz - tworzy venv
-activate_venv.bat            # Windows - aktywuj
-python FlightTool_Simple.py  # Uruchom
-```
-
-## 🌟 Zalety nowego podejścia:
-
-✅ **Auto-venv** - `run.bat` automatycznie tworzy i używa venv!
-✅ **Zero konfiguracji** - działaa od razu, bez instalacji ręcznej
-✅ **Venv izoluje pakiety** - nie psuje systemowego Pythona
-✅ **Łatwe usuwanie** - usuń folder `venv/` i gotowe
-✅ **Portable** - działa tak samo na Windows/Linux/macOS
-✅ **Fix Unicode** - automatycznie obsługuje polskie znaki (Windows)
-✅ **Bezpieczne** - każdy projekt ma swoje pakiety
 
 ---
 
-**Projekt**: drapaKajaK - Flight Price Scraper
-**Typ**: GUI-first aplikacja scrapingu lotów z auto-venv
-**Status**: Aktywnie rozwijany
-**Główny interfejs**: FlightTool_Simple.py
-**Quick Start**: `run.bat` (Windows) lub `./run.sh` (Linux/macOS)
+## Rozwiązywanie problemów
 
-**💡 Tip 1**: Użyj `run.bat` - automatycznie sprawdza i tworzy venv!
-**💡 Tip 2**: GUI automatycznie zapisuje konfigurację
-**💡 Tip 3**: Wszystkie skrypty mają auto-venv - `run_test.bat`, `run_scraper.bat`
-**💡 Tip 4**: Możesz mieć wiele venv dla różnych projektów bez konfliktów!
+### „Python nie znaleziony" / „python is not recognized"
+- Zainstaluj Python ze strony https://www.python.org/downloads/
+- Podczas instalacji zaznacz **„Add Python to PATH"**
+- Zrestartuj terminal po instalacji
+
+### „Chrome nie znaleziony" / błąd ChromeDriver
+- Zainstaluj Google Chrome: https://www.google.com/chrome/
+- Jeśli masz Chromium zamiast Chrome — też powinno działać
+- Sprawdź zakładkę **Test** → „Quick ChromeDriver Test"
+
+### Ceny nie są znajdowane / scraper nic nie zbiera
+- Zwiększ opóźnienia do 40-60s (Kayak blokuje zbyt szybkie zapytania)
+- Spróbuj za kilka godzin — Kayak może tymczasowo blokować
+- Sprawdź czy link z Kayak jest poprawny (zakładka URL Watcher)
+
+### Okno GUI się nie otwiera
+```bash
+# Windows:
+run.bat gui
+
+# Linux/macOS:
+./run.sh gui
+```
+Jeśli nadal nie działa, sprawdź czy `python --version` zwraca 3.8+.
+
+### Trzeba przeinstalować biblioteki
+```bash
+# Usuń venv i uruchom ponownie:
+# Windows:
+rmdir /s /q venv
+run.bat
+
+# Linux/macOS:
+rm -rf venv
+./run.sh
+```
+
+---
+
+## Ważne uwagi
+
+- Używaj **rozsądnych opóźnień** (30-45s między zapytaniami) — szanuj serwis Kayak
+- **Rolling mode** najlepiej uruchamiać na noc lub na wiele godzin
+- Wyniki są zapisywane lokalnie — nigdzie nie są wysyłane
+- Program działa tylko z **kayak.pl** i **kayak.com**
