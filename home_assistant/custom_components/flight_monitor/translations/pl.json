@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Dodaj lot do monitorowania",
+        "description": "Wklej link z Kayak z wybraną linią lotniczą, trasą i datami.",
+        "data": {
+          "kayak_url": "Link Kayak",
+          "flight_name": "Nazwa lotu (opcjonalnie)",
+          "scan_interval": "Interwał sprawdzania (minuty)"
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Nieprawidłowy link Kayak. Link musi zawierać trasę (np. WAW-ICN), daty i pasażerów (np. 2adults)."
+    },
+    "abort": {
+      "already_configured": "Ten lot jest już monitorowany.",
+      "max_flights_reached": "Osiągnięto limit 100 monitorowanych lotów."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ustawienia lotu",
+        "data": {
+          "scan_interval": "Interwał sprawdzania (minuty)"
+        }
+      }
+    }
+  }
+}

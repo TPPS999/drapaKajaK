@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add flight to monitor",
+        "description": "Paste a Kayak link with your chosen airline, route and dates.",
+        "data": {
+          "kayak_url": "Kayak URL",
+          "flight_name": "Flight name (optional)",
+          "scan_interval": "Check interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Invalid Kayak URL. The link must contain a route (e.g. WAW-ICN), dates and passenger count (e.g. 2adults)."
+    },
+    "abort": {
+      "already_configured": "This flight is already being monitored.",
+      "max_flights_reached": "Maximum of 100 monitored flights reached."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Flight settings",
+        "data": {
+          "scan_interval": "Check interval (minutes)"
+        }
+      }
+    }
+  }
+}

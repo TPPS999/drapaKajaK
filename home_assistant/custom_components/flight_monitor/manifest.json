@@ -1,0 +1,13 @@
+{
+  "domain": "flight_monitor",
+  "name": "Flight Monitor (Kayak)",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/your-repo/flight-monitor",
+  "requirements": [
+    "selenium>=4.15.0",
+    "webdriver-manager>=4.0.1"
+  ],
+  "codeowners": [],
+  "iot_class": "cloud_polling"
+}
